@@ -168,7 +168,7 @@ function showBossInCenter(boss){
   const imgPath=boss.img?'static/boss_images/'+boss.img:'';
   const prepRegion=G.region?G.region.name:'Unknown';
   ct.innerHTML='\
-    <div style="color:#ffd700;font-weight:900;font-size:2rem;text-align:center;margin-bottom:4px;line-height:1.2;">Prepare in <span style="color:#fff;">'+prepRegion+'</span> and then defeat <span style="color:#fff;">'+boss.n+'</span></div>\
+    <div style="color:#ffd700;font-weight:900;font-size:1.5rem;text-align:center;margin-bottom:4px;line-height:1.2;">Prepare in region <span style="color:#fff;">'+prepRegion+'</span> and then defeat <span style="color:#fff;">'+boss.n+'</span> in region <span style="color:#fff;">'+boss.regionName+'</span>!</div>\
     '+(imgPath?'<img src="'+imgPath+'" alt="'+boss.n+'" style="flex:1;min-height:0;width:90%;max-width:90%;object-fit:contain;image-rendering:pixelated;border-radius:6px;margin:4px 0;" onerror="this.style.display=\'none\'">':'<div style="color:#aaa;font-size:2.5rem;">👤</div>');
 }
 

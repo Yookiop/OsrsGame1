@@ -39,7 +39,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 .dice.landed{animation:diceLand 0.4s ease-out}
 @keyframes diceLand{0%{transform:scale(1.15);box-shadow:0 0 20px var(--gold)}100%{transform:scale(1);box-shadow:3px 3px 8px rgba(0,0,0,0.6)}}
 .dice .dot{width:13px;height:13px;background:var(--dice-dot);border-radius:50%;place-self:center;visibility:hidden}
-#controls{display:flex;align-items:center;gap:12px}
+#controls{display:grid;align-items:center}
+#controls>*{grid-area:1/1}
 .btn{font-size:1.4rem;padding:12px 18px;font-weight:800;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.5px}
 .btn:hover{filter:brightness(1.2);transform:translateY(-2px)}
 .btn:active{transform:scale(0.96)}
