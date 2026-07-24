@@ -5,14 +5,15 @@ function doRoll1(){
   if(G.phase!=='roll1'||G.anim)return; G.anim=true; renderAll();
   const oldPos=G.pos;
   animateDice(()=>{
-    const total=rollDice(); G.pos=total===12?0:total; // roll 2→tile2 … 11→tile11, 12→start
+    const total=rollDice();
+    const targetPos=total===12?0:total;
     // Wait ~1s then walk token clockwise tile by tile
     setTimeout(()=>{
-      walkToken(oldPos,G.pos,()=>{
-        const sp=S[G.pos];
-        if(sp.type==='start'){ G.region=R[Math.floor(Math.random()*R.length)]; }
-        else G.region=getRegion(sp.regionId);
-        G.boss=null; G.phase='roll2'; G.anim=false;
+      walkToken(oldPos,targetPos,()=>{
+        G.pos=targetPos;
+        if(total===12){ G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice'; }
+        else{ G.region=getRegion(S[G.pos].regionId); G.phase='roll2'; }
+        G.boss=null; G.anim=false;
         highlightSpace(G.pos);
         renderAll();
       });

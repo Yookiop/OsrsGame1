@@ -9,19 +9,19 @@ const R = Object.freeze([
   { id:'wilderness', name:'Wilderness', color:'#DC143C', emoji:'💀',
     bosses:[{n:'Crazy Arch.',t:'early',d:4,img:'Crazy_archaeologist.png'},{n:'Chaos Fanatic',t:'early',d:4,img:'Chaos_Fanatic.png'},{n:'Scorpia',t:'mid',d:5,img:'Scorpia.png'},{n:'Chaos Elemental',t:'mid',d:6,img:'Chaos_Elemental.png'},{n:'King Black Dragon',t:'mid',d:6,img:'King_Black_Dragon.png'},{n:'Venenatis',t:'mid',d:7,img:'Venenatis.png'},{n:"Vet'ion",t:'mid',d:7,img:'Vetion.png'},{n:'Callisto',t:'mid',d:7,img:'Callisto.png'},{n:'Corporeal Beast',t:'late',d:9,img:'Corporeal_Beast.png'}]},
   { id:'morytania', name:'Morytania', color:'#228B22', emoji:'🦇',
-    bosses:[{n:'Barrows',t:'early',d:4,img:'Barrows.png'},{n:'Theatre of Blood',t:'late',d:8,img:'Theatre_of_Blood.png'},{n:'The Nightmare',t:'end',d:10,img:'The_Nightmare.png'}]},
+    bosses:[{n:'Barrows',t:'early',d:4,img:'Barrows.png'},{n:'Verzik Vitur',t:'late',d:8,img:'Theatre_of_Blood.png'},{n:'The Nightmare',t:'end',d:10,img:'The_Nightmare.png'}]},
   { id:'tirannwn', name:'Tirannwn', color:'#1E3A8A', emoji:'🧝',
     bosses:[{n:'Zalcano',t:'mid',d:5,img:'Zalcano.png'},{n:'Zulrah',t:'mid',d:7,img:'Zulrah.png'},{n:'Crystalline Hunllef',t:'late',d:8,img:'Crystalline_Hunllef.png'},{n:'Corrupted Hunllef',t:'late',d:9,img:'Corrupted_Hunllef.png'}]},
   { id:'kourend', name:'Kourend', color:'#9C27B0', emoji:'🏛️',
-    bosses:[{n:'Wintertodt',t:'intro',d:3,img:'Wintertodt.png'},{n:'Hespori',t:'mid',d:5,img:'Hespori.png'},{n:'Sarachnis',t:'mid',d:6,img:'Sarachnis.png'},{n:'Skotizo',t:'mid',d:6,img:'Skotizo.png'},{n:'Chambers of Xeric',t:'late',d:9,img:'Chambers_of_Xeric.png'},{n:'Yama',t:'end',d:10,img:'Yama.png'}]},
+    bosses:[{n:'Wintertodt',t:'intro',d:3,img:'Wintertodt.png'},{n:'Hespori',t:'mid',d:5,img:'Hespori.png'},{n:'Sarachnis',t:'mid',d:6,img:'Sarachnis.png'},{n:'Skotizo',t:'mid',d:6,img:'Skotizo.png'},{n:'Great Olm',t:'late',d:9,img:'Chambers_of_Xeric.png'},{n:'Yama',t:'end',d:10,img:'Yama.png'}]},
   { id:'karamja', name:'Karamja', color:'#FF5722', emoji:'🌋',
     bosses:[{n:'TzTok-Jad',t:'mid',d:7,img:'TzTok-Jad.png'},{n:'TzKal-Zuk',t:'end',d:10,img:'TzKal-Zuk.png'}]},
   { id:'desert', name:'Desert', color:'#F5DEB3', emoji:'🏜️',
-    bosses:[{n:'Tempoross',t:'intro',d:3,img:'Tempoross.png'},{n:'Kalphite Queen',t:'mid',d:6,img:'Kalphite_Queen.png'},{n:'Tombs of Amascut',t:'late',d:9,img:'Tombs_of_Amascut.png'}]},
+    bosses:[{n:'Tempoross',t:'intro',d:3,img:'Tempoross.png'},{n:'Kalphite Queen',t:'mid',d:6,img:'Kalphite_Queen.png'},{n:'Warden',t:'late',d:9,img:'Tombs_of_Amascut.png'}]},
   { id:'varlamore', name:'Varlamore', color:'#E91E63', emoji:'🏟️',
-    bosses:[{n:'Amoxliatl',t:'mid',d:5,img:'Amoxliatl.png'},{n:'The Hueycoatl',t:'mid',d:6,img:'The_Hueycoatl.png'},{n:'Moons of Peril',t:'mid',d:7,img:'Moons_of_peril.png'},{n:'Vardorvis',t:'late',d:8,img:'Vardorvis.png'},{n:'Doom of Mokhaiotl',t:'end',d:10,img:'Doom_of_Mokhaiotl.png'},{n:'Fortis Colosseum',t:'end',d:10,img:'Fortis_Colosseum.png'}]},
+    bosses:[{n:'Amoxliatl',t:'mid',d:5,img:'Amoxliatl.png'},{n:'The Hueycoatl',t:'mid',d:6,img:'The_Hueycoatl.png'},{n:'Moons of Peril',t:'mid',d:7,img:'Moons_of_peril.png'},{n:'Vardorvis',t:'late',d:8,img:'Vardorvis.png'},{n:'Doom of Mokhaiotl',t:'end',d:10,img:'Doom_of_Mokhaiotl.png'},{n:'Sol Heredit',t:'end',d:10,img:'Fortis_Colosseum.png'}]},
   { id:'kandarin', name:'Kandarin', color:'#607D8B', emoji:'🏔️',
-    bosses:[{n:'Kandarin Region',t:'intro',d:1,img:null}]},
+    bosses:[]},
 ]);
 
 // Flat list of ALL bosses across all regions
@@ -30,7 +30,7 @@ R.forEach(r=>r.bosses.forEach(b=>ALL_BOSSES.push({...b,region:r.id,regionName:r.
 
 // 12 perimeter spaces — clockwise from top-left. Tile 0=start, tiles 1-11=regions
 const S = Object.freeze([
-  {id:0,  type:'start',  name:'START',           label:'🏁/12'},
+  {id:0,  type:'start',  name:'START',           label:'🏁'},
   {id:1,  type:'region', regionId:'misthalin',    label:'1'},
   {id:2,  type:'region', regionId:'asgarnia',     label:'2'},
   {id:3,  type:'region', regionId:'fremennik',    label:'3'},

@@ -21,11 +21,11 @@ function buildBoard(){
   // Center area — black box for boss display
   const ct=document.createElement('div'); ct.id='centerArea';
   ct.style.cssText='grid-row:2/4;grid-column:2/4;background:#1e180c;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;overflow:hidden';
-  ct.innerHTML='<div style="color:#c9a64e;font-size:1.6rem;font-weight:900;text-align:center;">OSRS Board Game</div><div style="color:#8a7a60;font-size:1.3rem;margin-top:4px;line-height:1.3;text-align:center;">Roll region to prepare in and roll the boss you have to defeat!</div>';
+  ct.innerHTML='<div style="color:#c9a64e;font-size:4.5rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">JOKER = roll 12</div>';
   b.appendChild(ct);
   // Token
   tok=document.createElement('div'); tok.className='token'; tok.id='token';
-  tok.innerHTML='<img src="static/images/default%20character%20-%20cropped.png" alt="character" style="width:53px;height:53px;image-rendering:pixelated;display:block">';
+  tok.innerHTML='<img src="static/images/default%20character%20-%20cropped.png" alt="character" style="width:50px;height:50px;image-rendering:pixelated;display:block">';
   document.getElementById('boardWrap').appendChild(tok);
   positionToken(0);
   // Build slot machine overlay
@@ -37,7 +37,7 @@ function positionToken(i,instant){
   if(!sp||!bw||!tok)return;
   const br=bw.getBoundingClientRect(), sr=sp.getBoundingClientRect();
   if(instant){tok.style.transition='none';}
-  tok.style.left=(sr.left-br.left+sr.width/2)+'px'; tok.style.top=(sr.top-br.top+sr.height-26)+'px';
+  tok.style.left=(sr.left-br.left+sr.width/2)+'px'; tok.style.top=(sr.top-br.top+sr.height-27)+'px';
   if(instant){tok.offsetHeight;tok.style.transition='';}
 }
 function walkToken(fromIdx,toIdx,done){
@@ -77,9 +77,9 @@ function animateDice(cb){
   let n=0;
   function tick(){
     drawDice(d1,Math.ceil(Math.random()*6)); drawDice(d2,Math.ceil(Math.random()*6));
-    const speed=n<8?120:150+(n-8)*40;
+    const speed=n<6?120:150+(n-6)*40;
     n++;
-    if(n<14){setTimeout(tick,speed);}
+    if(n<10){setTimeout(tick,speed);}
     else{
       d1.classList.remove('rolling'); d2.classList.remove('rolling');
       d1.classList.add('landed'); d2.classList.add('landed');
@@ -101,7 +101,7 @@ function buildSlotOverlay(){
   ov.innerHTML='\
     <div class="slot-bg"></div>\
     <div class="slot-window">\
-      <div class="slot-title">🎰 ROLLING BOSS...</div>\
+      <div class="slot-title"><span style="color:#c9a64e;-webkit-text-fill-color:#c9a64e;">🎰</span> ROLLING BOSS...</div>\
       <div class="slot-track-wrap"><div class="slot-track" id="slotTrack"></div></div>\
       <div class="slot-frame"><div class="slot-frame-arrow">▲</div></div>\
     </div>';
@@ -174,11 +174,49 @@ function showBossInCenter(boss){
 
 function updateCenterDefault(){
   const ct=document.getElementById('centerArea'); if(!ct)return;
-  if(G.region){
+  if(G.phase==='joker_choice'){
+    ct.innerHTML='\
+      <div style="color:#ffd700;font-size:1.4rem;font-weight:900;text-align:center;margin-bottom:10px;">🃏 JOKER! Choose:</div>\
+      <button onclick="showRegionPicker()" style="font-size:1.2rem;padding:10px 20px;margin:4px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;">🎯 Pick Region</button>\
+      <button onclick="showBossPicker()" style="font-size:1.2rem;padding:10px 20px;margin:4px;background:#4a2820;color:#ff6b6b;border:none;border-radius:8px;cursor:pointer;font-weight:800;">👹 Pick Boss</button>';
+  }else if(G.region){
     ct.innerHTML='<div class="rb-border" style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;cursor:pointer;" onclick="doRoll2()">🎰 Now roll the boss!</div>';
   }else{
-    ct.innerHTML='<div style="color:#c9a64e;font-size:1.6rem;font-weight:900;text-align:center;">OSRS Board Game</div><div style="color:#8a7a60;font-size:1.3rem;margin-top:6px;line-height:1.3;text-align:center;">Roll region to prepare in and roll the boss you have to defeat!</div>';
+    ct.innerHTML='<div style="color:#c9a64e;font-size:4.5rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">JOKER = roll 12</div>';
   }
+}
+
+// ==================== JOKER PICKERS ====================
+function showRegionPicker(){
+  const ct=document.getElementById('centerArea'); if(!ct)return;
+  let html='<div style="color:#ffd700;font-size:1.1rem;font-weight:900;text-align:center;margin-bottom:6px;">Pick preparation region:</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;">';
+  R.forEach(r=>{
+    html+='<button onclick="selectJokerRegion(\''+r.id+'\')" style="font-size:0.75rem;padding:6px 4px;background:#3a2e1e;color:#f0e6d2;border:1px solid #4a3828;border-radius:5px;cursor:pointer;font-weight:700;">'+r.emoji+'<br>'+r.name+'</button>';
+  });
+  html+='</div>';
+  ct.innerHTML=html;
+}
+function selectJokerRegion(regionId){
+  G.region=getRegion(regionId);
+  G.boss=null; G.phase='roll2';
+  renderAll();
+}
+function showBossPicker(){
+  const ct=document.getElementById('centerArea'); if(!ct)return;
+  let html='<div style="color:#ffd700;font-size:1.1rem;font-weight:900;text-align:center;margin-bottom:6px;">Pick boss to defeat:</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;overflow-y:auto;max-height:calc(100% - 30px);width:100%;">';
+  ALL_BOSSES.forEach((b,i)=>{
+    const imgTag=b.img?'<img src="static/boss_images/'+b.img+'" style="width:90%;height:auto;max-height:50px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display=\'none\'">':'👤';
+    html+='<button onclick="selectJokerBoss('+i+')" style="font-size:0.55rem;padding:4px 2px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;">'+imgTag+'<span style="color:#ffd700;">'+b.n+'</span><span style="color:#8a7a60;">'+b.regionName+'</span></button>';
+  });
+  html+='</div>';
+  ct.innerHTML=html;
+}
+function selectJokerBoss(idx){
+  const b=ALL_BOSSES[idx];
+  G.boss=b;
+  G.region=R[Math.floor(Math.random()*R.length)];
+  G.phase='done';
+  renderAll();
 }
 
 // ==================== BUTTONS ====================
