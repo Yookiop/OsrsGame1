@@ -33,11 +33,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 @keyframes arrowBounce{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-6px)}}
 #diceArea{display:flex;align-items:center;gap:12px;width:144px;flex-shrink:0}
 #diceResult{font-size:60px;color:var(--gold);font-weight:900;width:140px;flex-shrink:0;text-align:center;line-height:1}
-.dice{width:66px;height:66px;background:var(--dice-bg);border-radius:12px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;box-shadow:3px 3px 8px rgba(0,0,0,0.6);transition:transform 0.06s,box-shadow 0.06s}
+.dice{width:66px;height:66px;background:var(--dice-bg);border-radius:12px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;box-shadow:3px 3px 8px rgba(0,0,0,0.6);transition:box-shadow 0.06s}
 .dice.rolling{animation:diceShake 0.18s ease-in-out infinite}
 @keyframes diceShake{0%{transform:rotate(-8deg) translate(-2px,-2px)}25%{transform:rotate(6deg) translate(2px,1px)}50%{transform:rotate(-5deg) translate(-1px,2px)}75%{transform:rotate(7deg) translate(1px,-1px)}100%{transform:rotate(-8deg) translate(-2px,-2px)}}
 .dice.landed{animation:diceLand 0.4s ease-out forwards}
-@keyframes diceLand{0%{transform:scale(1.15);box-shadow:0 0 20px var(--gold)}100%{transform:scale(1);box-shadow:3px 3px 8px rgba(0,0,0,0.6)}}
+@keyframes diceLand{0%{box-shadow:0 0 20px var(--gold)}100%{box-shadow:3px 3px 8px rgba(0,0,0,0.6)}}
 .dice .dot{width:13px;height:13px;background:var(--dice-dot);border-radius:50%;place-self:center;visibility:hidden}
 #controls{display:grid;align-items:center}
 #controls>*{grid-area:1/1}
