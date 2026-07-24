@@ -9,7 +9,7 @@ const R = Object.freeze([
   { id:'wilderness', name:'Wilderness', color:'#DC143C', emoji:'💀',
     bosses:[{n:'Crazy Arch.',t:'early',d:4,img:'Crazy_archaeologist.png'},{n:'Chaos Fanatic',t:'early',d:4,img:'Chaos_Fanatic.png'},{n:'Scorpia',t:'mid',d:5,img:'Scorpia.png'},{n:'Chaos Elemental',t:'mid',d:6,img:'Chaos_Elemental.png'},{n:'King Black Dragon',t:'mid',d:6,img:'King_Black_Dragon.png'},{n:'Venenatis',t:'mid',d:7,img:'Venenatis.png'},{n:"Vet'ion",t:'mid',d:7,img:'Vetion.png'},{n:'Callisto',t:'mid',d:7,img:'Callisto.png'},{n:'Corporeal Beast',t:'late',d:9,img:'Corporeal_Beast.png'}]},
   { id:'morytania', name:'Morytania', color:'#228B22', emoji:'🦇',
-    bosses:[{n:'Barrows',t:'early',d:4,img:'Barrows.png'},{n:'Verzik Vitur',t:'late',d:8,img:'Theatre_of_Blood.png'},{n:'The Nightmare',t:'end',d:10,img:'The_Nightmare.png'}]},
+    bosses:[{n:'Barrows',t:'early',d:4,img:'Barrows.png'},{n:'Maggot King',t:'mid',d:6,img:'Maggot_King.png'},{n:'Verzik Vitur',t:'late',d:8,img:'Theatre_of_Blood.png'},{n:'The Nightmare',t:'end',d:10,img:'The_Nightmare.png'}]},
   { id:'tirannwn', name:'Tirannwn', color:'#1E3A8A', emoji:'🧝',
     bosses:[{n:'Zalcano',t:'mid',d:5,img:'Zalcano.png'},{n:'Zulrah',t:'mid',d:7,img:'Zulrah.png'},{n:'Crystalline Hunllef',t:'late',d:8,img:'Crystalline_Hunllef.png'},{n:'Corrupted Hunllef',t:'late',d:9,img:'Corrupted_Hunllef.png'}]},
   { id:'kourend', name:'Kourend', color:'#9C27B0', emoji:'🏛️',
