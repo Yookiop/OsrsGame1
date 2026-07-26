@@ -61,9 +61,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 @keyframes rainbowFlow{to{--rb:360deg}}
 </style></head><body>
 
+<div style="width:min(88vh,88vw,700px);margin:0 auto;text-align:left;padding:2px 0 2px 6px;">
+  <button id="btnTest" onclick="runTest200()" style="opacity:0.1;background:none;border:none;color:#000;font-size:0.9rem;cursor:pointer;padding:2px 4px;transition:opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.1'" title="Test: 200 rolls">200</button>
+</div>
+
 <div id="topBar" style="display:grid;grid-template-columns:repeat(4,1fr);width:min(88vh,88vw,700px);align-items:center;gap:4px">
 <div style="grid-column:1/3;display:flex;align-items:center;gap:4px;justify-content:flex-start;padding-left:6px">
-<button id="btnTest" onclick="runTest200()" style="opacity:0.08;background:none;border:none;color:#000;font-size:0.9rem;cursor:pointer;padding:2px 4px;transition:opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.08'" title="Test: 200 rolls">200</button>
 <div id="diceArea">
   <div class="dice" id="d1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
   <div class="dice" id="d2"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -81,14 +84,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 
 <div id="boardWrap"><div id="board"></div></div>
 
-<div id="completedPanel" style="width:min(88vh,88vw,700px);background:#1e180c;border:2px solid #3a2e1e;border-radius:8px;padding:8px 12px;max-height:180px;overflow-y:auto;">
-  <div style="color:#c9a64e;font-weight:900;font-size:0.8rem;margin-bottom:4px;">📋 Completed Tasks (<span id="completedCount">0</span>)</div>
-  <table id="completedTable" style="width:100%;border-collapse:collapse;color:#aaa;font-size:0.9rem;">
+<div id="completedPanel" style="width:min(88vh,88vw,700px);background:#1e180c;border:2px solid #3a2e1e;border-radius:8px;padding:8px 12px;max-height:400px;overflow-y:auto;">
+  <table id="completedHeader" style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:0;">
+    <colgroup>
+      <col style="width:auto;">
+      <col id="colPad" style="width:0%;">
+    </colgroup>
+    <tr>
+      <td id="titleCell" style="text-align:center;color:#c9a64e;font-weight:900;font-size:1.5rem;padding-bottom:6px;border-bottom:1px solid #3a2e1e;position:relative;">📋 Completed Tasks (<span id="completedCount">0</span>)<span id="resizePad" style="position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;"></span></td>
+      <td style="padding:0;border-bottom:1px solid #3a2e1e;"></td>
+    </tr>
+  </table>
+  <table id="completedTable" style="width:100%;border-collapse:collapse;color:#aaa;font-size:1.2rem;table-layout:fixed;">
+    <colgroup>
+      <col id="colPrep" style="width:45%;">
+      <col style="width:auto;">
+    </colgroup>
     <thead><tr>
-      <th id="sortPrep" onclick="toggleSort(0)" style="cursor:pointer;text-align:left;padding:2px 6px;border-bottom:1px solid #3a2e1e;color:#c9a64e;user-select:none;white-space:nowrap;">Prepare Region <span id="sortArrow0">▲</span></th>
-      <th id="sortBoss" onclick="toggleSort(1)" style="cursor:pointer;text-align:left;padding:2px 6px;border-bottom:1px solid #3a2e1e;color:#c9a64e;user-select:none;white-space:nowrap;">Defeated Boss <span id="sortArrow1" style="visibility:hidden;">▲</span></th>
+      <th id="sortPrep" onclick="toggleSort(0)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-right:1px solid #4a3828;position:relative;">Prepare Region <span id="sortArrow0">▲</span><span id="resizePrep" style="position:absolute;right:-3px;top:0;bottom:0;width:7px;cursor:col-resize;"></span></th>
+      <th id="sortBoss" onclick="toggleSort(1)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;">Defeated Boss <span id="sortArrow1" style="visibility:hidden;">▲</span></th>
     </tr></thead>
     <tbody id="completedBody"></tbody>
+  </table>
+</div>
   </table>
 </div>
 

@@ -309,7 +309,7 @@ function updateBtns(){
         return asc?va.localeCompare(vb):vb.localeCompare(va);
       });
       tb.innerHTML=rows.map(r=>
-        '<tr><td style="padding:2px 6px;border-bottom:1px solid #2a2014;">'+r.prepEmoji+' '+r.prepName+'</td>'+
+        '<tr><td style="padding:2px 6px;border-bottom:1px solid #2a2014;border-right:1px solid #4a3828;">'+r.prepEmoji+' '+r.prepName+'</td>'+
         '<td style="padding:2px 6px;border-bottom:1px solid #2a2014;color:#ffd700;">'+r.bossName+'</td></tr>'
       ).join('');
     }
@@ -405,4 +405,50 @@ function toggleSort(col){
   renderAll();
 }
 
-document.addEventListener('DOMContentLoaded',()=>{buildBoard();renderAll();});
+// ==================== COLUMN RESIZE ====================
+function initColumnResize(){
+  // Header title resize — drag to make pad cell (B1) wider, pushing title left
+  const hdrTable=document.getElementById('completedHeader');
+  const handlePad=document.getElementById('resizePad');
+  if(hdrTable&&handlePad){
+    const cols=hdrTable.querySelectorAll('col');
+    const colTitle=cols[0], colPad=cols[1];
+    let dragging=false, startX, padStartW;
+    handlePad.addEventListener('mousedown',e=>{
+      dragging=true;
+      startX=e.clientX;
+      padStartW=colPad.offsetWidth||0;
+      e.preventDefault(); e.stopPropagation();
+    });
+    document.addEventListener('mousemove',e=>{
+      if(!dragging)return;
+      const dx=e.clientX-startX;
+      const tw=hdrTable.getBoundingClientRect().width;
+      const newPadW=Math.max(0,Math.min(tw-80,padStartW-dx));
+      // Negative dx = dragging left = pad gets wider, title shrinks
+      colPad.style.width=newPadW+'px';
+      colTitle.style.width=(tw-newPadW)+'px';
+    });
+    document.addEventListener('mouseup',()=>{dragging=false;});
+  }
+  // Prep column resize (data table)
+  const dataTable=document.getElementById('completedTable');
+  const handlePrep=document.getElementById('resizePrep');
+  const colPrep=document.getElementById('colPrep');
+  if(dataTable&&handlePrep&&colPrep){
+    let dragging=false, startX, startW;
+    handlePrep.addEventListener('mousedown',e=>{
+      dragging=true; startX=e.clientX; startW=colPrep.offsetWidth;
+      e.preventDefault(); e.stopPropagation();
+    });
+    document.addEventListener('mousemove',e=>{
+      if(!dragging)return;
+      const dx=e.clientX-startX;
+      const newW=Math.max(80,Math.min(dataTable.offsetWidth-120,startW+dx));
+      colPrep.style.width=newW+'px';
+    });
+    document.addEventListener('mouseup',()=>{dragging=false;});
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{buildBoard();renderAll();initColumnResize();});
