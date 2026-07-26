@@ -62,7 +62,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 </style></head><body>
 
 <div style="width:min(88vh,88vw,700px);margin:0 auto;text-align:left;padding:2px 0 2px 6px;">
-  <button id="btnTest" onclick="runTest200()" style="opacity:0.1;background:none;border:none;color:#000;font-size:0.9rem;cursor:pointer;padding:2px 4px;transition:opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.1'" title="Test: 200 rolls">200</button>
+  <button id="btnTest" onclick="runTest200()" style="opacity:0.1;background:none;border:none;color:#000;font-size:0.9rem;cursor:pointer;padding:2px 4px;transition:opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.1'">200</button>
 </div>
 
 <div id="topBar" style="display:grid;grid-template-columns:repeat(4,1fr);width:min(88vh,88vw,700px);align-items:center;gap:4px">
@@ -84,7 +84,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 
 <div id="boardWrap"><div id="board"></div></div>
 
-<div id="completedPanel" style="width:min(88vh,88vw,700px);background:#1e180c;border:2px solid #3a2e1e;border-radius:8px;padding:8px 12px;max-height:400px;overflow-y:auto;">
+<div id="completedPanel" style="width:min(88vh,88vw,700px);background:#1e180c;border:2px solid #3a2e1e;border-radius:8px;padding:0 12px 8px 12px;max-height:400px;overflow-y:auto;">
+  <div style="position:sticky;top:0;background:#1e180c;z-index:2;margin:0 -12px 0 -12px;padding:0 12px 2px 12px;">
   <table id="completedHeader" style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:0;">
     <colgroup>
       <col style="width:auto;">
@@ -101,9 +102,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
       <col style="width:auto;">
     </colgroup>
     <thead><tr>
-      <th id="sortPrep" onclick="toggleSort(0)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-right:1px solid #4a3828;position:relative;">Prepare Region <span id="sortArrow0">▲</span><span id="resizePrep" style="position:absolute;right:-3px;top:0;bottom:0;width:7px;cursor:col-resize;"></span></th>
-      <th id="sortBoss" onclick="toggleSort(1)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;">Defeated Boss <span id="sortArrow1" style="visibility:hidden;">▲</span></th>
+      <th id="sortPrep" onclick="toggleSort(0)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-right:1px solid #4a3828;border-bottom:1px solid #3a2e1e;position:relative;">Prepare Region <span id="sortArrow0">▲</span><span id="resizePrep" style="position:absolute;right:-3px;top:0;bottom:0;width:7px;cursor:col-resize;"></span></th>
+      <th id="sortBoss" onclick="toggleSort(1)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-bottom:1px solid #3a2e1e;">Defeated Boss <span id="sortArrow1" style="visibility:hidden;">▲</span></th>
     </tr></thead>
+  </table>
+  </div>
+  <table style="width:100%;border-collapse:collapse;color:#aaa;font-size:1.2rem;table-layout:fixed;">
+    <colgroup>
+      <col id="colPrepShadow" style="width:45%;">
+      <col style="width:auto;">
+    </colgroup>
     <tbody id="completedBody"></tbody>
   </table>
 </div>

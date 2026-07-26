@@ -237,12 +237,12 @@ function showBossPicker(){
     const hasAvail=availRegions.length>0;
     const imgTag=b.img?'<img src="static/boss_images/'+b.img+'" style="max-width:80%;max-height:55px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display=\'none\'">':'<span style="font-size:2rem;">👤</span>';
     const btnStyle=hasAvail
-      ?'font-size:0.85rem;padding:4px 3px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:90px;'
-      :'font-size:0.85rem;padding:4px 3px;background:#1a1208;color:#444;border:1px solid #2a2014;border-radius:5px;display:flex;flex-direction:column;align-items:center;min-height:90px;opacity:0.5;';
+      ?'font-size:0.85rem;padding:16px 3px 4px 3px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:90px;'
+      :'font-size:0.85rem;padding:16px 3px 4px 3px;background:#1a1208;color:#555;border:1px solid #2a2014;border-radius:5px;display:flex;flex-direction:column;align-items:center;min-height:90px;opacity:0.5;';
     const onclick=hasAvail?'onclick="selectJokerBoss('+i+')"':'';
     const nameHtml='<div style="min-height:2.6em;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;width:100%;"><span style="color:#ffd700;font-weight:900;">'+b.n+'</span></div>';
-    const imgHtml='<div style="flex:1;display:flex;align-items:center;justify-content:center;min-height:0;width:100%;">'+imgTag+'</div>';
-    html+='<button '+onclick+' style="'+btnStyle+'">'+imgHtml+nameHtml+(hasAvail?'':'<span style="color:#4caf50;font-size:0.55rem;">Completed</span>')+'</button>';
+    const imgHtml='<div style="flex:1;display:flex;align-items:center;justify-content:center;min-height:0;width:100%;position:relative;">'+imgTag+(hasAvail?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3rem;color:#f44336;opacity:0.85;">🚫</div>')+'</div>';
+    html+='<button '+onclick+' style="'+btnStyle+'">'+imgHtml+nameHtml+'</button>';
   });
   html+='</div>';
   ct.innerHTML=html;
@@ -431,11 +431,11 @@ function initColumnResize(){
     });
     document.addEventListener('mouseup',()=>{dragging=false;});
   }
-  // Prep column resize (data table)
-  const dataTable=document.getElementById('completedTable');
+  // Prep column resize (data table header)
   const handlePrep=document.getElementById('resizePrep');
   const colPrep=document.getElementById('colPrep');
-  if(dataTable&&handlePrep&&colPrep){
+  const colPrepShadow=document.getElementById('colPrepShadow');
+  if(handlePrep&&colPrep){
     let dragging=false, startX, startW;
     handlePrep.addEventListener('mousedown',e=>{
       dragging=true; startX=e.clientX; startW=colPrep.offsetWidth;
@@ -443,9 +443,11 @@ function initColumnResize(){
     });
     document.addEventListener('mousemove',e=>{
       if(!dragging)return;
+      const tw=colPrep.parentElement.parentElement.parentElement.getBoundingClientRect().width;
       const dx=e.clientX-startX;
-      const newW=Math.max(80,Math.min(dataTable.offsetWidth-120,startW+dx));
+      const newW=Math.max(80,Math.min(tw-120,startW+dx));
       colPrep.style.width=newW+'px';
+      if(colPrepShadow)colPrepShadow.style.width=newW+'px';
     });
     document.addEventListener('mouseup',()=>{dragging=false;});
   }

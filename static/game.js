@@ -81,8 +81,17 @@ const MAX_POINTS = ALL_BOSSES.length * R.length; // 11 prep regions × total uni
 function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; renderAll(); }
 
 // === TEST: 200 auto-roll+complete cycles ===
+let testBtnClicks=0;
 function runTest200(){
-  let count=0, max=200;
+  testBtnClicks++;
+  const remaining=MAX_POINTS-G.points;
+  const max=testBtnClicks>=2&&remaining<=200?Math.min(50,remaining):Math.min(200,remaining);
+  const btn=document.getElementById('btnTest');
+  if(btn)btn.textContent=max;
+  runTestBatch(max);
+}
+function runTestBatch(max){
+  let count=0;
   function step(){
     if(count>=max){ renderAll(); return; }
     // Roll region (no anim)
