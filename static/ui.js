@@ -21,7 +21,7 @@ function buildBoard(){
   // Center area — black box for boss display
   const ct=document.createElement('div'); ct.id='centerArea';
   ct.style.cssText='grid-row:2/4;grid-column:2/4;background:#1e180c;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;overflow:hidden';
-  ct.innerHTML='<div style="color:#c9a64e;font-size:4.5rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">JOKER = roll 12</div>';
+  ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">JOKER = roll 12</div>';
   b.appendChild(ct);
   // Token
   tok=document.createElement('div'); tok.className='token'; tok.id='token';
@@ -182,7 +182,7 @@ function updateCenterDefault(){
   }else if(G.region){
     ct.innerHTML='<div class="rb-border" style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;cursor:pointer;" onclick="doRoll2()">🎰 Now roll the boss!</div>';
   }else{
-    ct.innerHTML='<div style="color:#c9a64e;font-size:4.5rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">JOKER = roll 12</div>';
+    ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">JOKER = roll 12</div>';
   }
 }
 
