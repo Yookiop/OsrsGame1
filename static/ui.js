@@ -126,10 +126,35 @@ function openSlotMachine(targetBoss, done){
   const track=document.getElementById('slotTrack');
   // Rebuild track with only available bosses for current region
   track.innerHTML='';
+  track.style.justifyContent='';
+  track.style.transform='';
+  track.style.transition='';
   const avail=getAvailableBosses(G.region.id);
   const bossesWithImg=avail.filter(b=>b.img);
   if(bossesWithImg.length===0){ov.style.display='none';slotRunning=false;done();return;}
   const totalUnique=bossesWithImg.length;
+
+  // === Only 1 boss left: static centered display with glow landing ===
+  if(totalUnique===1){
+    const b = bossesWithImg[0];
+    const card = document.createElement('div');
+    card.className = 'slot-card slot-single';
+    card.innerHTML = '<img src="static/boss_images/' + b.img + '" alt="' + b.n + '">';
+    track.appendChild(card);
+    track.style.justifyContent = 'center';
+
+    setTimeout(() => {
+      ov.style.display = 'none';
+      track.style.justifyContent = '';
+      track.style.transform = '';
+      track.style.transition = '';
+      slotRunning = false;
+      showBossInCenter(targetBoss);
+      done();
+    }, 1500);
+    return;
+  }
+
   // Duplicate 5x for seamless scrolling
   for(let r=0;r<5;r++){
     bossesWithImg.forEach(b=>{
@@ -188,19 +213,25 @@ function updateCenterDefault(){
   const ct=document.getElementById('centerArea'); if(!ct)return;
   if(G.phase==='joker_choice'){
     ct.classList.add('center-joker');
+    ct.style.justifyContent='flex-start';
+    ct.style.padding='4px 10px 4px 10px';
     ct.innerHTML='\
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16rem;opacity:0.15;pointer-events:none;z-index:0;">🃏</div>\
-      <div style="position:relative;z-index:1;color:#ffd700;font-size:2.6rem;font-weight:900;text-align:center;margin-bottom:6px;">JOKER!</div>\
-      <div style="position:relative;z-index:1;color:#ffd700;font-size:1.2rem;font-weight:900;text-align:center;margin-bottom:16px;">Choose:</div>\
-      <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:6px;align-items:center;">\
+      <div style="position:relative;z-index:1;color:#ffd700;font-size:2.2rem;font-weight:900;text-align:center;text-shadow:0 0 12px rgba(0,0,0,0.9),0 2px 4px rgba(0,0,0,0.8);">JOKER!</div>\
+      <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#4a3860 0%,#2a2014 70%);margin:0 8px;border-radius:6px;align-self:stretch;min-height:0;">\
+        <div style="font-size:140px;line-height:1;">🃏</div>\
+      </div>\
+      <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:4px;margin-top:auto;">\
+        <div style="color:#ffd700;font-size:1.3rem;font-weight:900;text-align:center;text-shadow:0 0 10px rgba(0,0,0,0.9),0 1px 3px rgba(0,0,0,0.8);">Choose:</div>\
         <button onclick="showRegionPicker()" style="font-size:1.2rem;padding:10px 24px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;">🎯 Pick Region</button>\
         <button onclick="showBossPicker()" style="font-size:1.2rem;padding:10px 24px;background:#4a2820;color:#ff6b6b;border:none;border-radius:8px;cursor:pointer;font-weight:800;">👹 Pick Boss</button>\
       </div>';
   }else if(G.region){
     ct.classList.remove('center-joker');
+    ct.style.justifyContent='center';
     ct.innerHTML='<div class="rb-border" style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;cursor:pointer;" onclick="doRoll2()">🎰 Now roll the boss!</div>';
   }else{
     ct.classList.remove('center-joker');
+    ct.style.justifyContent='center';
     ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">Land on START = JOKER</div>';
   }
 }
@@ -271,8 +302,8 @@ function selectJokerBoss(idx){
 function updateBtns(){
   const b1=document.getElementById('btn1'),rst=document.getElementById('btnReset');
   const cmp=document.getElementById('btnComplete'),gup=document.getElementById('btnGiveUp');
-  if(b1)b1.style.visibility=(G.phase==='roll1' && !G.anim)?'':'hidden';
-  if(b1)b1.disabled=G.anim;
+  if(b1)b1.style.visibility=(G.phase==='roll1' && !G.anim && !G.won)?'':'hidden';
+  if(b1)b1.disabled=G.anim||G.won;
 
   // Complete + Give Up buttons visible in 'done' phase
   const doneVisible=(G.phase==='done' && !G.anim);
@@ -402,6 +433,29 @@ function showGameOverPopup(){
 function dismissGameOver(){
   const ov=document.getElementById('gameOverOverlay'); if(ov)ov.remove();
   confirmGiveUp(); // from game.js — resets state
+}
+
+// ==================== VICTORY POPUP ====================
+function showVictoryPopup(){
+  const ov=document.createElement('div'); ov.id='victoryOverlay';
+  ov.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;display:flex;align-items:center;justify-content:center;flex-direction:column';
+  ov.innerHTML='\
+    <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);"></div>\
+    <div style="position:relative;z-index:1;text-align:center;">\
+      <div style="font-size:4rem;color:#4caf50;font-weight:900;text-shadow:0 0 30px rgba(76,175,80,0.8);animation:victoryPulse 1s ease-in-out infinite alternate;">CONGRATULATIONS<br>YOU\'VE WON!</div>\
+      <div style="font-size:1.5rem;color:#81c784;margin:16px 0;">All bosses defeated!</div>\
+      <button onclick="dismissVictory()" style="font-size:1.3rem;padding:12px 28px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;margin-top:10px;">🔄 Play Again</button>\
+    </div>';
+  document.body.appendChild(ov);
+  if(!document.getElementById('victoryStyle')){
+    const style=document.createElement('style'); style.id='victoryStyle';
+    style.textContent='@keyframes victoryPulse{from{transform:scale(1)}to{transform:scale(1.05)}}';
+    document.head.appendChild(style);
+  }
+}
+function dismissVictory(){
+  const ov=document.getElementById('victoryOverlay'); if(ov)ov.remove();
+  confirmGiveUp();
 }
 
 function toggleSort(col){

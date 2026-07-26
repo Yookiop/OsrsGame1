@@ -1,5 +1,5 @@
 ﻿/* OSRS Board Game — roll region (preparation), then slot-machine boss pick */
-const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[] };
+const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], won:false };
 
 // Completed key format: "prepRegionId|bossRegionId|bossName"
 function makeCompletedKey(prepRegionId, boss){ return prepRegionId+'|'+boss.region+'|'+boss.n; }
@@ -63,6 +63,12 @@ function completeTask(){
     G.points++;
   }
   G.phase='roll1'; G.dice=[0,0]; G.region=null; G.boss=null;
+  if(G.points>=MAX_POINTS){
+    G.won=true;
+    renderAll();
+    setTimeout(()=>showVictoryPopup(),300);
+    return;
+  }
   renderAll();
 }
 
@@ -73,7 +79,7 @@ function giveUp(){
 
 function confirmGiveUp(){
   G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null;
-  G.points=0; G.completed=[];
+  G.points=0; G.completed=[]; G.won=false;
   positionToken(0,true);
   highlightSpace(0);
   renderAll();
