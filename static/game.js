@@ -65,7 +65,7 @@ function completeTask(){
 
 function giveUp(){
   if(G.phase!=='done')return;
-  showGameOverPopup();
+  showConfirmGiveUpPopup();
 }
 
 function confirmGiveUp(){
@@ -79,4 +79,47 @@ function confirmGiveUp(){
 const MAX_POINTS = ALL_BOSSES.length * R.length; // 11 prep regions × total unique bosses
 
 function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; renderAll(); }
+
+// === TEST: 200 auto-roll+complete cycles ===
+function runTest200(){
+  let count=0, max=200;
+  function step(){
+    if(count>=max){ renderAll(); return; }
+    // Roll region (no anim)
+    const total=Math.ceil(Math.random()*6)+Math.ceil(Math.random()*6);
+    const targetPos=total===12?0:total;
+    G.pos=targetPos; G.dice=[Math.ceil(Math.random()*6),Math.ceil(Math.random()*6)];
+    G.dice=[0,0]; // clear dice display, we don't care
+    if(total===12){
+      G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice';
+    }else{
+      G.region=getRegion(S[G.pos].regionId);
+      const avail=getAvailableBosses(G.region.id);
+      if(avail.length===0){ G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice'; }
+      else{ G.phase='roll2'; }
+    }
+    // Handle joker: pick random region with bosses
+    if(G.phase==='joker_choice'){
+      const regs=R.filter(r=>getAvailableBosses(r.id).length>0);
+      if(regs.length>0){ G.region=regs[Math.floor(Math.random()*regs.length)]; G.phase='roll2'; }
+      else{ G.phase='roll1'; G.region=null; count++; setTimeout(step,5); return; }
+    }
+    // Roll boss
+    if(G.phase==='roll2'){
+      const avail=getAvailableBosses(G.region.id);
+      if(avail.length>0){ G.boss=avail[Math.floor(Math.random()*avail.length)]; G.phase='done'; }
+      else{ G.phase='roll1'; G.region=null; count++; setTimeout(step,5); return; }
+    }
+    // Complete
+    if(G.phase==='done'&&G.region&&G.boss){
+      const key=makeCompletedKey(G.region.id,G.boss);
+      if(!G.completed.includes(key)){ G.completed.push(key); G.points++; }
+    }
+    G.phase='roll1'; G.dice=[0,0]; G.region=null; G.boss=null;
+    count++;
+    if(count%20===0||count===max){ highlightSpace(G.pos); positionToken(G.pos,true); renderAll(); }
+    if(count<max){ setTimeout(step,5); }else{ highlightSpace(0); positionToken(0,true); renderAll(); }
+  }
+  step();
+}
 if(typeof animateDice==='undefined') function animateDice(cb){cb();renderAll();}

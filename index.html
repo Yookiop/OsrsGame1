@@ -11,6 +11,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 @keyframes glowPulse{from{box-shadow:0 0 10px var(--gold)}to{box-shadow:0 0 22px var(--gold)}}
 .space .bar{width:70%;height:5px;flex-shrink:0;border-radius:2px;margin:0 auto}
 .space .sn{font-size:1.5rem;font-weight:800;line-height:1.15;color:#f0e6d2;text-shadow:0 1px 3px rgba(0,0,0,0.8);margin-top:6px;margin-bottom:4px;padding:0 2px;word-break:break-word}
+.space.completed{background:#2a1a0a;border-color:#c9a64e}
+.space.completed .sn{color:#f0e6d2}
 .space .sd{font-size:0.6rem;color:#aaa}
 .space.start{background:#1a3a1a;border-color:#6ab04c}.space.start .sn.start-label{color:#ffd700;font-size:2.5rem}
 .space.start .space-num{font-size:4rem}
@@ -61,6 +63,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 
 <div id="topBar" style="display:grid;grid-template-columns:repeat(4,1fr);width:min(88vh,88vw,700px);align-items:center;gap:4px">
 <div style="grid-column:1/3;display:flex;align-items:center;gap:4px;justify-content:flex-start;padding-left:6px">
+<button id="btnTest" onclick="runTest200()" style="opacity:0.08;background:none;border:none;color:#000;font-size:0.9rem;cursor:pointer;padding:2px 4px;transition:opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.08'" title="Test: 200 rolls">200</button>
 <div id="diceArea">
   <div class="dice" id="d1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
   <div class="dice" id="d2"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -69,7 +72,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 </div>
 <div id="pointsDisplay" style="grid-column:3;text-align:center;font-size:1rem;font-weight:900;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.5);line-height:1.2;">Current<br>Points:<br>0 / ?</div>
 <div id="controls" style="grid-column:4;display:flex;gap:4px;align-items:center;justify-content:flex-end;padding-right:4px;">
-  <button class="btn btn-roll" id="btn1" onclick="doRoll1()"><span style="font-size:2.4rem;vertical-align:middle;">🎲</span> ROLL</button>
+  <button class="btn btn-roll" id="btn1" onclick="doRoll1()"><img src="static/images/dice%20icon.png" alt="🎲" style="width:34px;height:34px;vertical-align:middle;margin-right:3px;"> ROLL</button>
   <button class="btn btn-reset" id="btnReset" onclick="resetGame()" style="visibility:hidden;">🔄 Again</button>
   <button class="btn btn-complete" id="btnComplete" onclick="completeTask()" style="visibility:hidden;"><span style="display:block;font-size:1.4rem;line-height:1;">✅</span>Complete</button>
   <button class="btn btn-giveup" id="btnGiveUp" onclick="giveUp()" style="visibility:hidden;"><span style="display:block;font-size:1.4rem;line-height:1;">🏳️</span>Give Up</button>
@@ -78,9 +81,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 
 <div id="boardWrap"><div id="board"></div></div>
 
-<div id="completedPanel" style="width:min(88vh,88vw,700px);background:#1e180c;border:2px solid #3a2e1e;border-radius:8px;padding:8px 12px;max-height:130px;overflow-y:auto;">
+<div id="completedPanel" style="width:min(88vh,88vw,700px);background:#1e180c;border:2px solid #3a2e1e;border-radius:8px;padding:8px 12px;max-height:180px;overflow-y:auto;">
   <div style="color:#c9a64e;font-weight:900;font-size:0.8rem;margin-bottom:4px;">📋 Completed Tasks (<span id="completedCount">0</span>)</div>
-  <div id="completedList" style="color:#aaa;font-size:0.7rem;"></div>
+  <table id="completedTable" style="width:100%;border-collapse:collapse;color:#aaa;font-size:0.9rem;">
+    <thead><tr>
+      <th id="sortPrep" onclick="toggleSort(0)" style="cursor:pointer;text-align:left;padding:2px 6px;border-bottom:1px solid #3a2e1e;color:#c9a64e;user-select:none;white-space:nowrap;">Prepare Region <span id="sortArrow0">▲</span></th>
+      <th id="sortBoss" onclick="toggleSort(1)" style="cursor:pointer;text-align:left;padding:2px 6px;border-bottom:1px solid #3a2e1e;color:#c9a64e;user-select:none;white-space:nowrap;">Defeated Boss <span id="sortArrow1" style="visibility:hidden;">▲</span></th>
+    </tr></thead>
+    <tbody id="completedBody"></tbody>
+  </table>
 </div>
 
 <script src="static/board-data.js"></script>
