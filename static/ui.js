@@ -191,7 +191,13 @@ function showRegionPicker(){
   const ct=document.getElementById('centerArea'); if(!ct)return;
   let html='<div style="color:#ffd700;font-size:1.1rem;font-weight:900;text-align:center;margin-bottom:6px;">Pick preparation region:</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;">';
   R.forEach(r=>{
-    html+='<button onclick="selectJokerRegion(\''+r.id+'\')" style="font-size:0.75rem;padding:6px 4px;background:#3a2e1e;color:#f0e6d2;border:1px solid #4a3828;border-radius:5px;cursor:pointer;font-weight:700;">'+r.emoji+'<br>'+r.name+'</button>';
+    const avail=getAvailableBosses(r.id);
+    const hasAvail=avail.length>0;
+    const style=hasAvail
+      ?'font-size:0.75rem;padding:6px 4px;background:#3a2e1e;color:#f0e6d2;border:1px solid #4a3828;border-radius:5px;cursor:pointer;font-weight:700;'
+      :'font-size:0.75rem;padding:6px 4px;background:#1a1208;color:#555;border:1px solid #2a2014;border-radius:5px;font-weight:700;opacity:0.5;';
+    const onclick=hasAvail?'onclick="selectJokerRegion(\''+r.id+'\')"':'';
+    html+='<button '+onclick+' style="'+style+'">'+r.emoji+'<br>'+r.name+(hasAvail?'':'<br><span style="font-size:0.5rem;color:#f44336;">✓ all done</span>')+'</button>';
   });
   html+='</div>';
   ct.innerHTML=html;
@@ -203,10 +209,23 @@ function selectJokerRegion(regionId){
 }
 function showBossPicker(){
   const ct=document.getElementById('centerArea'); if(!ct)return;
-  let html='<div style="color:#ffd700;font-size:1.1rem;font-weight:900;text-align:center;margin-bottom:6px;">Pick boss to defeat:</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;overflow-y:auto;max-height:calc(100% - 30px);width:100%;">';
+  let html='<div style="color:#ffd700;font-size:1rem;font-weight:900;text-align:center;margin-bottom:4px;">Pick boss to defeat:</div>';
+  html+='<div style="color:#aaa;font-size:0.65rem;text-align:center;margin-bottom:6px;">(will auto-assign available region)</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;overflow-y:auto;max-height:calc(100% - 50px);width:100%;">';
+  // Group bosses by name — show one entry per unique boss if it has ANY available region
+  const seen={};
   ALL_BOSSES.forEach((b,i)=>{
-    const imgTag=b.img?'<img src="static/boss_images/'+b.img+'" style="width:90%;height:auto;max-height:50px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display=\'none\'">':'👤';
-    html+='<button onclick="selectJokerBoss('+i+')" style="font-size:0.55rem;padding:4px 2px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;">'+imgTag+'<span style="color:#ffd700;">'+b.n+'</span><span style="color:#8a7a60;">'+b.regionName+'</span></button>';
+    const key=b.n+'|'+b.region;
+    if(seen[key])return; seen[key]=true;
+    // Check if this boss has at least one region where it's not completed
+    const availRegions=R.filter(r=>!isCompleted(r.id,b));
+    const hasAvail=availRegions.length>0;
+    const imgTag=b.img?'<img src="static/boss_images/'+b.img+'" style="width:85%;height:auto;max-height:45px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display=\'none\'">':'👤';
+    const style=hasAvail
+      ?'font-size:0.5rem;padding:3px 2px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;'
+      :'font-size:0.5rem;padding:3px 2px;background:#1a1208;color:#444;border:1px solid #2a2014;border-radius:5px;display:flex;flex-direction:column;align-items:center;gap:1px;opacity:0.5;';
+    const onclick=hasAvail?'onclick="selectJokerBoss('+i+')"':'';
+    html+='<button '+onclick+' style="'+style+'">'+imgTag+'<span style="color:#ffd700;">'+b.n+'</span><span style="color:#8a7a60;">'+b.regionName+'</span>'+(hasAvail?'':'<span style="color:#f44336;font-size:0.45rem;">all done</span>')+'</button>';
   });
   html+='</div>';
   ct.innerHTML=html;
@@ -214,7 +233,14 @@ function showBossPicker(){
 function selectJokerBoss(idx){
   const b=ALL_BOSSES[idx];
   G.boss=b;
-  G.region=R[Math.floor(Math.random()*R.length)];
+  // Pick a random available region (not completed with this boss)
+  const availRegions=R.filter(r=>!isCompleted(r.id,b));
+  if(availRegions.length===0){
+    // Shouldn't happen since we filter in UI, but fallback
+    G.region=R[Math.floor(Math.random()*R.length)];
+  }else{
+    G.region=availRegions[Math.floor(Math.random()*availRegions.length)];
+  }
   G.phase='done';
   renderAll();
 }
@@ -222,14 +248,50 @@ function selectJokerBoss(idx){
 // ==================== BUTTONS ====================
 function updateBtns(){
   const b1=document.getElementById('btn1'),rst=document.getElementById('btnReset');
+  const cmp=document.getElementById('btnComplete'),gup=document.getElementById('btnGiveUp');
   if(b1)b1.style.visibility=(G.phase==='roll1' && !G.anim)?'':'hidden';
-  if(rst)rst.style.visibility=G.phase==='done'?'':'hidden';
   if(b1)b1.disabled=G.anim;
+
+  // Complete + Give Up buttons visible in 'done' phase
+  const doneVisible=(G.phase==='done' && !G.anim);
+  if(cmp)cmp.style.visibility=doneVisible?'':'hidden';
+  if(gup)gup.style.visibility=doneVisible?'':'hidden';
+
+  // Hide old Again button permanently (replaced by Complete/GiveUp)
+  if(rst)rst.style.display='none';
+
   const dr=document.getElementById('diceResult');
   if(dr)dr.textContent=G.dice[0]?('= '+String(G.dice[0]+G.dice[1])):'';
-  // Hide old boss result text
-  const br=document.getElementById('bossResult');
-  if(br)br.style.display='none';
+
+  // Update points display
+  const pts=document.getElementById('pointsDisplay');
+  if(pts)pts.innerHTML='Current<br>points:<br>'+G.points+' / '+MAX_POINTS;
+
+  // Update completed count
+  const cc=document.getElementById('completedCount');
+  if(cc)cc.textContent=G.completed.length;
+
+  // Update completed list
+  const cl=document.getElementById('completedList');
+  if(cl){
+    if(G.completed.length===0){
+      cl.innerHTML='<div style="color:#666;font-style:italic;">No tasks completed yet</div>';
+    }else{
+      cl.innerHTML=G.completed.map(key=>{
+        const parts=key.split('|');
+        const prepReg=getRegion(parts[0]);
+        const bossReg=getRegion(parts[1]);
+        const bossName=parts.slice(2).join('|');
+        return '<div style="display:flex;align-items:center;gap:4px;padding:2px 0;font-size:0.7rem;">'+
+          '<span>'+(prepReg?prepReg.emoji:'')+'</span>'+
+          '<span style="color:#ffd700;">'+bossName+'</span>'+
+          '<span style="color:#888;">@</span>'+
+          '<span>'+(bossReg?bossReg.emoji:'')+'</span>'+
+          '<span style="color:#aaa;font-size:0.55rem;">'+parts[1]+'</span>'+
+        '</div>';
+      }).join('');
+    }
+  }
 }
 
 function renderAll(){
@@ -238,4 +300,29 @@ function renderAll(){
   else{updateCenterDefault();}
   updateBtns();
 }
+
+// ==================== GAME OVER POPUP ====================
+function showGameOverPopup(){
+  const ov=document.createElement('div'); ov.id='gameOverOverlay';
+  ov.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;display:flex;align-items:center;justify-content:center;flex-direction:column';
+  ov.innerHTML='\
+    <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);"></div>\
+    <div style="position:relative;z-index:1;text-align:center;">\
+      <div style="font-size:5rem;color:#ff0000;font-weight:900;text-shadow:0 0 30px rgba(255,0,0,0.8);animation:gameOverPulse 1s ease-in-out infinite alternate;">GAME OVER</div>\
+      <div style="font-size:1.5rem;color:#ff6b6b;margin:16px 0;">All progress lost! Points reset to 0.</div>\
+      <button onclick="dismissGameOver()" style="font-size:1.3rem;padding:12px 28px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;margin-top:10px;">🔄 Try Again</button>\
+    </div>';
+  document.body.appendChild(ov);
+  // Add keyframe dynamically
+  if(!document.getElementById('gameOverStyle')){
+    const style=document.createElement('style'); style.id='gameOverStyle';
+    style.textContent='@keyframes gameOverPulse{from{transform:scale(1)}to{transform:scale(1.05)}}';
+    document.head.appendChild(style);
+  }
+}
+function dismissGameOver(){
+  const ov=document.getElementById('gameOverOverlay'); if(ov)ov.remove();
+  confirmGiveUp(); // from game.js — resets state
+}
+
 document.addEventListener('DOMContentLoaded',()=>{buildBoard();renderAll();});

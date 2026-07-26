@@ -2,7 +2,7 @@
 <style>
 :root{--bg:#1a1208;--gold:#c9a64e;--dice-bg:#f5e6d3;--dice-dot:#1a1208}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c5a9;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;user-select:none}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c5a9;display:flex;flex-direction:column;align-items:center;min-height:100vh;gap:12px;padding:12px 0;user-select:none}
 #boardWrap{position:relative}
 #board{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);width:min(88vh,88vw,700px);height:min(88vh,88vw,700px);aspect-ratio:1;gap:4px;background:#2a2014;border:3px solid #4a3828;border-radius:10px;padding:2px}
 .space{background:#3a2e1e;border:1px solid #4a3828;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:all 0.2s;overflow:hidden;padding:28px 6px 28px 6px;position:relative}
@@ -31,22 +31,25 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 .slot-frame{position:relative;height:30px}
 .slot-frame-arrow{position:absolute;top:0;left:50%;transform:translateX(-50%);color:var(--gold);font-size:1.5rem;animation:arrowBounce 0.5s ease-in-out infinite alternate}
 @keyframes arrowBounce{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-6px)}}
-#diceArea{display:flex;align-items:center;gap:12px;width:144px;flex-shrink:0}
-#diceResult{font-size:60px;color:var(--gold);font-weight:900;width:140px;flex-shrink:0;text-align:center;line-height:1}
-.dice{width:66px;height:66px;background:var(--dice-bg);border-radius:12px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;box-shadow:3px 3px 8px rgba(0,0,0,0.6);transition:box-shadow 0.06s}
+#diceArea{display:flex;align-items:center;gap:6px;flex-shrink:0}
+#diceResult{font-size:36px;color:var(--gold);font-weight:900;flex-shrink:0;text-align:center;line-height:1;min-width:50px}
+.dice{width:54px;height:54px;background:var(--dice-bg);border-radius:10px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:5px;box-shadow:3px 3px 8px rgba(0,0,0,0.6);transition:box-shadow 0.06s}
 .dice.rolling{animation:diceShake 0.18s ease-in-out infinite}
 @keyframes diceShake{0%{transform:rotate(-8deg) translate(-2px,-2px)}25%{transform:rotate(6deg) translate(2px,1px)}50%{transform:rotate(-5deg) translate(-1px,2px)}75%{transform:rotate(7deg) translate(1px,-1px)}100%{transform:rotate(-8deg) translate(-2px,-2px)}}
 .dice.landed{animation:diceLand 0.4s ease-out forwards}
 @keyframes diceLand{0%{box-shadow:0 0 20px var(--gold)}100%{box-shadow:3px 3px 8px rgba(0,0,0,0.6)}}
-.dice .dot{width:13px;height:13px;background:var(--dice-dot);border-radius:50%;place-self:center;visibility:hidden}
-#controls{display:grid;align-items:center}
-#controls>*{grid-area:1/1}
+.dice .dot{width:10px;height:10px;background:var(--dice-dot);border-radius:50%;place-self:center;visibility:hidden}
+#controls{display:flex;gap:4px;align-items:center}
 .btn{font-size:1.4rem;padding:12px 18px;font-weight:800;border:none;border-radius:8px;cursor:pointer;transition:filter 0.2s,transform 0.2s;text-transform:uppercase;letter-spacing:0.5px}
 .btn:hover{filter:brightness(1.2);transform:translateY(-2px)}
 .btn:active{transform:scale(0.96)}
 .btn:disabled{opacity:0.3;cursor:not-allowed;filter:none;transform:none}
-.btn-roll{background:var(--gold);color:#1a1208;font-size:1.4rem}
-.btn-reset{background:#4a2820;color:#ff6b6b;font-size:1rem;padding:12px 16px}
+.btn-roll{background:var(--gold);color:#1a1208;font-size:1.1rem}
+.btn-reset{background:#4a2820;color:#ff6b6b;font-size:0.8rem;padding:8px 12px}
+.btn-complete{background:#2e7d32;color:#fff;font-size:1.1rem;padding:10px 18px;min-width:130px}
+.btn-complete:hover{filter:brightness(1.3)}
+.btn-giveup{background:#b71c1c;color:#fff;font-size:1.1rem;padding:10px 18px;min-width:130px}
+.btn-giveup:hover{filter:brightness(1.3)}
 #info{text-align:center;font-size:0.8rem;color:#aaa;min-height:22px}
 #bossResult{font-size:1.1rem;text-align:center;padding:4px 12px;background:#2a241c;border-radius:6px}
 .rb-border{position:relative;z-index:0;display:inline-block;padding:8px 16px;border-radius:8px}
@@ -55,7 +58,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 @keyframes rainbowFlow{to{--rb:360deg}}
 </style></head><body>
 
-<div id="topBar" style="display:grid;grid-template-columns:repeat(4,1fr);width:min(88vh,88vw,700px);align-items:center">
+<div id="topBar" style="display:grid;grid-template-columns:repeat(4,1fr);width:min(88vh,88vw,700px);align-items:center;gap:4px">
 <div style="grid-column:1/3;display:flex;align-items:center;gap:4px;justify-content:flex-start;padding-left:6px">
 <div id="diceArea">
   <div class="dice" id="d1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -63,15 +66,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 </div>
 <div id="diceResult"></div>
 </div>
-<div style="grid-column:3/5;display:flex;align-items:center;gap:8px;justify-content:flex-end;padding-right:4px">
-<div id="controls">
-  <button class="btn btn-roll" id="btn1" onclick="doRoll1()"><span style="font-size:2.4rem;vertical-align:middle;">🎲</span> ROLL PREPARATION REGION</button>
+<div id="pointsDisplay" style="grid-column:3;text-align:center;font-size:1rem;font-weight:900;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.5);line-height:1.2;">Current<br>Points:<br>0 / ?</div>
+<div id="controls" style="grid-column:4;display:flex;gap:4px;align-items:center;justify-content:flex-end;padding-right:4px;">
+  <button class="btn btn-roll" id="btn1" onclick="doRoll1()"><span style="font-size:2.4rem;vertical-align:middle;">🎲</span> ROLL</button>
   <button class="btn btn-reset" id="btnReset" onclick="resetGame()" style="visibility:hidden;">🔄 Again</button>
-</div>
+  <button class="btn btn-complete" id="btnComplete" onclick="completeTask()" style="visibility:hidden;"><span style="display:block;font-size:1.4rem;line-height:1;">✅</span>Complete</button>
+  <button class="btn btn-giveup" id="btnGiveUp" onclick="giveUp()" style="visibility:hidden;"><span style="display:block;font-size:1.4rem;line-height:1;">🏳️</span>Give Up</button>
 </div>
 </div>
 
 <div id="boardWrap"><div id="board"></div></div>
+
+<div id="completedPanel" style="width:min(88vh,88vw,700px);background:#1e180c;border:2px solid #3a2e1e;border-radius:8px;padding:8px 12px;max-height:130px;overflow-y:auto;">
+  <div style="color:#c9a64e;font-weight:900;font-size:0.8rem;margin-bottom:4px;">📋 Completed Tasks (<span id="completedCount">0</span>)</div>
+  <div id="completedList" style="color:#aaa;font-size:0.7rem;"></div>
+</div>
 
 <script src="static/board-data.js"></script>
 <script src="static/game.js"></script>
