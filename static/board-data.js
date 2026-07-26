@@ -30,7 +30,7 @@ R.forEach(r=>r.bosses.forEach(b=>ALL_BOSSES.push({...b,region:r.id,regionName:r.
 
 // 12 perimeter spaces — clockwise from top-left. Tile 0=start, tiles 1-11=regions
 const S = Object.freeze([
-  {id:0,  type:'start',  name:'START',           label:'🏁'},
+  {id:0,  type:'start',  name:'START',           label:'🏁&🃏'},
   {id:1,  type:'region', regionId:'misthalin',    label:'1'},
   {id:2,  type:'region', regionId:'asgarnia',     label:'2'},
   {id:3,  type:'region', regionId:'fremennik',    label:'3'},

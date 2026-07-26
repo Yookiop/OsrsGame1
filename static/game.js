@@ -15,13 +15,16 @@ function doRoll1(){
   const oldPos=G.pos;
   animateDice(()=>{
     const total=rollDice();
-    const targetPos=total===12?0:total;
+    // Move forward from current position, looping around the board (like Monopoly)
+    const targetPos=(G.pos+total)%12;
     // Wait ~1s then walk token clockwise tile by tile
     setTimeout(()=>{
       walkToken(oldPos,targetPos,()=>{
         G.pos=targetPos;
-        if(total===12){ G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice'; }
-        else{
+        if(targetPos===0){
+          // Landed on START → JOKER (same as the old "roll 12" rule)
+          G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice';
+        }else{
           G.region=getRegion(S[G.pos].regionId);
           const avail=getAvailableBosses(G.region.id);
           if(avail.length===0){
@@ -96,10 +99,12 @@ function runTestBatch(max){
     if(count>=max){ renderAll(); return; }
     // Roll region (no anim)
     const total=Math.ceil(Math.random()*6)+Math.ceil(Math.random()*6);
-    const targetPos=total===12?0:total;
+    // Move forward from current position, looping like Monopoly
+    const targetPos=(G.pos+total)%12;
     G.pos=targetPos; G.dice=[Math.ceil(Math.random()*6),Math.ceil(Math.random()*6)];
     G.dice=[0,0]; // clear dice display, we don't care
-    if(total===12){
+    if(targetPos===0){
+      // Landed on START → JOKER
       G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice';
     }else{
       G.region=getRegion(S[G.pos].regionId);
