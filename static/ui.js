@@ -9,19 +9,18 @@ function buildBoard(){
     el.style.gridRow=lo.r; el.style.gridColumn=lo.c;
     if(sp.type==='start'){
       el.classList.add('start');
-      el.innerHTML+= '<div class="start-arrow"></div>';
-      el.innerHTML+= '<div class="start-icons">🏁 &amp; 🃏</div>';
-      el.innerHTML+= '<div class="sn start-label">'+sp.name+'</div>';
+      el.innerHTML+= '<img class="start-pole" src="static/images/start pole animated.png" alt="START">';
     }else{
       const r=getRegion(sp.regionId);
+      el.innerHTML+= '<div class="space-num">'+sp.label+'</div>';
       el.innerHTML+= '<div class="bar" style="background:'+r.color+'"></div><div class="sn">'+r.emoji+'<br>'+r.name+'</div>';
     }
     b.appendChild(el);
   }
   // Center area — black box for boss display
   const ct=document.createElement('div'); ct.id='centerArea';
-  ct.style.cssText='grid-row:2/4;grid-column:2/4;background:#1e180c;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;overflow:hidden';
-  ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">Land on START → JOKER</div>';
+  ct.style.cssText='grid-row:2/4;grid-column:2/4;background:#1e180c;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;overflow:hidden;position:relative';
+  ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">Land on START = JOKER</div>';
   b.appendChild(ct);
   // Token
   tok=document.createElement('div'); tok.className='token'; tok.id='token';
@@ -188,14 +187,21 @@ function showBossInCenter(boss){
 function updateCenterDefault(){
   const ct=document.getElementById('centerArea'); if(!ct)return;
   if(G.phase==='joker_choice'){
+    ct.classList.add('center-joker');
     ct.innerHTML='\
-      <div style="color:#ffd700;font-size:1.4rem;font-weight:900;text-align:center;margin-bottom:10px;">🃏 JOKER! Choose:</div>\
-      <button onclick="showRegionPicker()" style="font-size:1.2rem;padding:10px 20px;margin:4px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;">🎯 Pick Region</button>\
-      <button onclick="showBossPicker()" style="font-size:1.2rem;padding:10px 20px;margin:4px;background:#4a2820;color:#ff6b6b;border:none;border-radius:8px;cursor:pointer;font-weight:800;">👹 Pick Boss</button>';
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16rem;opacity:0.15;pointer-events:none;z-index:0;">🃏</div>\
+      <div style="position:relative;z-index:1;color:#ffd700;font-size:2.6rem;font-weight:900;text-align:center;margin-bottom:6px;">JOKER!</div>\
+      <div style="position:relative;z-index:1;color:#ffd700;font-size:1.2rem;font-weight:900;text-align:center;margin-bottom:16px;">Choose:</div>\
+      <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:6px;align-items:center;">\
+        <button onclick="showRegionPicker()" style="font-size:1.2rem;padding:10px 24px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;">🎯 Pick Region</button>\
+        <button onclick="showBossPicker()" style="font-size:1.2rem;padding:10px 24px;background:#4a2820;color:#ff6b6b;border:none;border-radius:8px;cursor:pointer;font-weight:800;">👹 Pick Boss</button>\
+      </div>';
   }else if(G.region){
+    ct.classList.remove('center-joker');
     ct.innerHTML='<div class="rb-border" style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;cursor:pointer;" onclick="doRoll2()">🎰 Now roll the boss!</div>';
   }else{
-    ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">Land on START → JOKER</div>';
+    ct.classList.remove('center-joker');
+    ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">Land on START = JOKER</div>';
   }
 }
 
