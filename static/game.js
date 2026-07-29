@@ -1,5 +1,5 @@
 ﻿/* OSRS Board Game — roll region (preparation), then slot-machine boss pick */
-const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], completedBosses:{}, won:false, freePass:false, allowBossRepeats:true, defeatedBosses:[] };
+const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], completedBosses:{}, won:false, freePass:false, allowBossRepeats:false, defeatedBosses:[] };
 
 function bossKey(b){ return b.region+'|'+b.n; }
 

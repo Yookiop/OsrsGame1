@@ -14,6 +14,8 @@ After every prompt involving UI or layout changes:
 4. Avoid unnecessary changes beyond what was requested
 5. When reverting, only revert the specific changes the user is unhappy with — don't cascade
 6. **Look at the BIG picture** — don't hyperfocus on just the new detail you're adding. Check whether your change affects surrounding elements, existing layout, or overall visual structure. Review screenshots with fresh eyes: if something looks broken (clipping, overlapping, shifting), investigate before concluding the fix is done.
+7. **Don't hallucinate solutions** — read the prompt literally. If the user says "move this down", don't decide to make the container bigger. Ask yourself: does this change exactly match what was requested, or am I inventing a different approach? When in doubt, ask the user concisely before making structural changes.
+8. **Ask before making design decisions** — if you're about to change sizing, padding, margins, or layout structure beyond what was literally asked, stop and ask the user first with a short question. Don't assume you know what they want.
 
 ## Testing changes
 
