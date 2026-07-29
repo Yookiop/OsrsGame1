@@ -205,13 +205,19 @@ function showBossInCenter(boss){
   const imgPath=boss.img?'static/boss_images/'+boss.img:'';
   const prepRegion=G.region?G.region.name:'Unknown';
   ct.innerHTML='\
-    <div style="color:#ffd700;font-weight:900;font-size:1.5rem;text-align:center;margin-bottom:4px;line-height:1.2;">Prepare in <span style="color:#fff;">'+prepRegion+'</span> region and then defeat <span style="color:#fff;">'+boss.n+'</span> in <span style="color:#fff;">'+boss.regionName+'</span> region!</div>\
+    <div style="color:#ffd700;font-weight:900;font-size:1.5rem;text-align:center;margin-bottom:4px;line-height:1.2;">Prepare in <span style="color:#fff;">'+prepRegion+'</span> and then defeat <span style="color:#fff;">'+boss.n+'</span> in <span style="color:#fff;">'+boss.regionName+'</span>!</div>\
     '+(imgPath?'<img src="'+imgPath+'" alt="'+boss.n+'" style="flex:1;min-height:0;width:90%;max-width:90%;object-fit:contain;image-rendering:pixelated;border-radius:6px;margin:4px 0;" onerror="this.style.display=\'none\'">':'<div style="color:#aaa;font-size:2.5rem;">👤</div>');
 }
 
 function updateCenterDefault(){
   const ct=document.getElementById('centerArea'); if(!ct)return;
-  if(G.phase==='joker_choice'){
+  if(G.freePass && G.phase==='roll1' && !G.region && G.pos!==0 && isRegionCompleted(S[G.pos].regionId)){
+    // Landed on completed region → free pass
+    ct.classList.remove('center-joker');
+    ct.style.justifyContent='center';
+    const r=getRegion(S[G.pos].regionId);
+    ct.innerHTML='<div style="color:#4caf50;font-size:3rem;line-height:1;">✅</div><div style="color:#4caf50;font-size:1.5rem;font-weight:900;text-align:center;">'+r.name+' already completed!<br>Roll again!</div>';
+  }else if(G.phase==='joker_choice'){
     ct.classList.add('center-joker');
     ct.style.justifyContent='flex-start';
     ct.style.padding='4px 10px 4px 10px';
@@ -268,9 +274,8 @@ function showBossPicker(){
   ALL_BOSSES.forEach((b,i)=>{
     const key=b.n+'|'+b.region;
     if(seen[key])return; seen[key]=true;
-    // Check if this boss has at least one region where it's not completed
-    const availRegions=R.filter(r=>!isCompleted(r.id,b));
-    const hasAvail=availRegions.length>0;
+    // Check if this boss is available: depends on toggle setting
+    const hasAvail=G.allowBossRepeats?true:!G.defeatedBosses.includes(bossKey(b));
     const imgTag=b.img?'<img src="static/boss_images/'+b.img+'" style="max-width:80%;max-height:55px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display=\'none\'">':'<span style="font-size:2rem;">👤</span>';
     const btnStyle=hasAvail
       ?'font-size:0.85rem;padding:16px 3px 4px 3px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:90px;'
@@ -286,14 +291,9 @@ function showBossPicker(){
 function selectJokerBoss(idx){
   const b=ALL_BOSSES[idx];
   G.boss=b;
-  // Pick a random available region (not completed with this boss)
-  const availRegions=R.filter(r=>!isCompleted(r.id,b));
-  if(availRegions.length===0){
-    // Shouldn't happen since we filter in UI, but fallback
-    G.region=R[Math.floor(Math.random()*R.length)];
-  }else{
-    G.region=availRegions[Math.floor(Math.random()*availRegions.length)];
-  }
+  // Pick a non-completed region for this boss
+  const availRegions=R.filter(r=>!isRegionCompleted(r.id));
+  G.region=availRegions.length>0?availRegions[Math.floor(Math.random()*availRegions.length)]:R[0];
   G.phase='done';
   renderAll();
 }
@@ -330,12 +330,10 @@ function updateBtns(){
     if(G.completed.length===0){
       tb.innerHTML='<tr><td colspan="2" style="color:#666;font-style:italic;padding:4px 6px;text-align:center;">No tasks completed yet</td></tr>';
     }else{
-      // Build rows from completed keys
-      let rows=G.completed.map(key=>{
-        const parts=key.split('|');
-        const prepReg=getRegion(parts[0]);
-        const bossName=parts.slice(2).join('|');
-        return {prepName:prepReg?prepReg.name:'?', prepEmoji:prepReg?prepReg.emoji:'', bossName:bossName};
+      // Build rows from completed region IDs
+      let rows=G.completed.map(regionId=>{
+        const reg=getRegion(regionId);
+        return {prepName:reg?reg.name:'?', prepEmoji:reg?reg.emoji:'', bossName:'✅ Completed'};
       });
       // Sort
       const col=completedSort.col, asc=completedSort.asc;
@@ -364,17 +362,18 @@ function updateCompletedTiles(){
   for(let i=1;i<12;i++){
     const sp=S[i]; if(sp.type!=='region')continue;
     const el=document.getElementById('sp'+i); if(!el)continue;
-    const avail=getAvailableBosses(sp.regionId);
-    if(avail.length===0){
-      // Region fully completed — show joker
+    const r=getRegion(sp.regionId);
+    if(isRegionCompleted(sp.regionId)){
+      // Region completed — show checkmark, NOT joker
       el.classList.add('completed');
-      const bar=el.querySelector('.bar'); if(bar)bar.style.background='linear-gradient(90deg,#F44336 0%,#F44336 25%,#FFEB3B 25%,#FFEB3B 50%,#2196F3 50%,#2196F3 75%,#9C27B0 75%,#9C27B0 100%)';
-      const sn=el.querySelector('.sn'); if(sn)sn.innerHTML='🃏<br>Joker';
+      const bar=el.querySelector('.bar'); if(bar)bar.style.background='#4caf50';
+      const sn=el.querySelector('.sn'); if(sn)sn.innerHTML='✅<br>'+r.name;
+      const num=el.querySelector('.space-num'); if(num)num.style.color='#4caf50';
     }else{
       el.classList.remove('completed');
-      const r=getRegion(sp.regionId);
       const bar=el.querySelector('.bar'); if(bar)bar.style.background=r.color;
       const sn=el.querySelector('.sn'); if(sn)sn.innerHTML=r.emoji+'<br>'+r.name;
+      const num=el.querySelector('.space-num'); if(num)num.style.color='#ffd700';
     }
   }
 }
@@ -512,4 +511,10 @@ function initColumnResize(){
   }
 }
 
-document.addEventListener('DOMContentLoaded',()=>{buildBoard();renderAll();initColumnResize();});
+function updateToggleUI(){
+  const tog=document.getElementById('bossRepeatToggle');
+  if(!tog)return;
+  tog.className='toggle-switch '+(G.allowBossRepeats?'on':'off');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{buildBoard();updateToggleUI();renderAll();initColumnResize();});

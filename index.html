@@ -28,6 +28,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 .slot-window{position:relative;z-index:1;width:90vw;max-width:600px;text-align:center}
 .slot-title{font-size:1.5rem;font-weight:900;background:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff00,#00ffff,#0088ff,#8800ff,#ff0000);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 2s linear infinite;margin-bottom:16px}
 @keyframes rainbowText{to{background-position:200% center}}
+/* Toggle Switch */
+#toggleBar{gap:6px}
+.toggle-label{color:#c9a64e;font-size:0.94rem;font-weight:700}
+.toggle-switch{cursor:pointer;user-select:none}
+.toggle-track{position:relative;width:64px;height:26px;background:#555;border-radius:13px;border:2px solid #777;display:flex;align-items:center;overflow:hidden;transition:background 0.3s,border-color 0.3s}
+.toggle-switch.on .toggle-track{background:#2e7d32;border-color:#4caf50}
+.toggle-option{position:absolute;font-size:1rem;font-weight:900;z-index:0;transition:opacity 0.15s}
+.toggle-on{left:8px;color:#fff}
+.toggle-off{right:8px;color:#fff}
+.toggle-switch.on .toggle-off{opacity:0}
+.toggle-switch.off .toggle-on{opacity:0}
+.toggle-thumb{position:absolute;width:20px;height:20px;background:#e0e0e0;border-radius:50%;left:2px;z-index:1;transition:transform 0.25s ease;box-shadow:0 1px 3px rgba(0,0,0,0.5)}
+.toggle-switch.on .toggle-thumb{transform:translateX(36px)}
 #centerArea.center-joker{background:#2a2014!important}
 .slot-track-wrap{overflow:hidden;border-radius:12px;background:#1a1208;border:3px solid #4a3828;padding:8px 0;margin-bottom:4px}
 .slot-track{display:flex;gap:8px;will-change:transform}
@@ -72,7 +85,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 </style></head><body>
 
 <div style="width:min(88vh,88vw,700px);margin:0 auto;text-align:left;padding:2px 0 2px 6px;">
-  <button id="btnTest" onclick="runTest200()" style="opacity:0.1;background:none;border:none;color:#000;font-size:0.9rem;cursor:pointer;padding:2px 4px;transition:opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.1'">200</button>
+  <button id="btnTest" style="opacity:0.1;background:none;border:none;color:#000;font-size:0.9rem;cursor:default;padding:2px 4px;">x</button>
 </div>
 
 <div id="topBar" style="display:grid;grid-template-columns:repeat(4,1fr);width:min(88vh,88vw,700px);align-items:center;gap:4px">
@@ -83,13 +96,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
 </div>
 <div id="diceResult"></div>
 </div>
-<div id="pointsDisplay" style="grid-column:3;text-align:center;font-size:1rem;font-weight:900;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.5);line-height:1.2;">Current<br>Points:<br>0 / ?</div>
+<div id="pointsDisplay" style="grid-column:3;text-align:center;font-size:1rem;font-weight:900;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.5);line-height:1.2;">Current<br>Points:<br>0 / 11</div>
 <div id="controls" style="grid-column:4;display:flex;gap:4px;align-items:center;justify-content:flex-end;padding-right:4px;">
   <button class="btn btn-roll" id="btn1" onclick="doRoll1()"><img src="static/images/dice%20icon.png" alt="🎲" style="width:34px;height:34px;vertical-align:middle;margin-right:3px;"> ROLL</button>
   <button class="btn btn-reset" id="btnReset" onclick="resetGame()" style="visibility:hidden;">🔄 Again</button>
   <button class="btn btn-complete" id="btnComplete" onclick="completeTask()" style="visibility:hidden;"><span style="display:block;font-size:1.4rem;line-height:1;">✅</span>Complete</button>
   <button class="btn btn-giveup" id="btnGiveUp" onclick="giveUp()" style="visibility:hidden;"><span style="display:block;font-size:1.4rem;line-height:1;">🏳️</span>Give Up</button>
 </div>
+</div>
+
+<div id="toggleBar" style="width:min(88vh,88vw,700px);display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:4px 0 4px 6px;">
+  <span class="toggle-label">Able to defeat a boss multiple times?</span>
+  <div class="toggle-switch" id="bossRepeatToggle" onclick="toggleBossRepeats()" title="By default, any boss can be rolled for any region.&#10;Toggle OFF to only be assigned a boss once across all regions.">
+    <div class="toggle-track">
+      <span class="toggle-option toggle-on">On</span>
+      <span class="toggle-option toggle-off">Off</span>
+      <div class="toggle-thumb"></div>
+    </div>
+  </div>
 </div>
 
 <div id="boardWrap"><div id="board"></div></div>
@@ -112,8 +136,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#d4c
       <col style="width:auto;">
     </colgroup>
     <thead><tr>
-      <th id="sortPrep" onclick="toggleSort(0)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-right:1px solid #4a3828;border-bottom:1px solid #3a2e1e;position:relative;">Prepare Region <span id="sortArrow0">▲</span><span id="resizePrep" style="position:absolute;right:-3px;top:0;bottom:0;width:7px;cursor:col-resize;"></span></th>
-      <th id="sortBoss" onclick="toggleSort(1)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-bottom:1px solid #3a2e1e;">Defeated Boss <span id="sortArrow1" style="visibility:hidden;">▲</span></th>
+      <th id="sortPrep" onclick="toggleSort(0)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-right:1px solid #4a3828;border-bottom:1px solid #3a2e1e;position:relative;">Completed Region <span id="sortArrow0">▲</span><span id="resizePrep" style="position:absolute;right:-3px;top:0;bottom:0;width:7px;cursor:col-resize;"></span></th>
+      <th id="sortBoss" onclick="toggleSort(1)" style="cursor:pointer;text-align:left;padding:2px 6px;color:#c9a64e;user-select:none;border-bottom:1px solid #3a2e1e;">Status <span id="sortArrow1" style="visibility:hidden;">▲</span></th>
     </tr></thead>
   </table>
   </div>

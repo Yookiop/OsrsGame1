@@ -1,17 +1,25 @@
 ﻿/* OSRS Board Game — roll region (preparation), then slot-machine boss pick */
-const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], won:false };
+const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], won:false, freePass:false, allowBossRepeats:true, defeatedBosses:[] };
 
-// Completed key format: "prepRegionId|bossRegionId|bossName"
-function makeCompletedKey(prepRegionId, boss){ return prepRegionId+'|'+boss.region+'|'+boss.n; }
-function isCompleted(prepRegionId, boss){ return G.completed.includes(makeCompletedKey(prepRegionId,boss)); }
-function getAvailableBosses(prepRegionId){
-  return ALL_BOSSES.filter(b=>!isCompleted(prepRegionId,b));
+function bossKey(b){ return b.region+'|'+b.n; }
+
+// Completed: array of region IDs. One boss per region completes the whole region.
+function isRegionCompleted(regionId){ return G.completed.includes(regionId); }
+function getAvailableBosses(regionId){
+  if(isRegionCompleted(regionId)) return [];
+  // Every region picks from ALL bosses (except those from already-completed regions)
+  let pool=ALL_BOSSES.filter(b=>!isRegionCompleted(b.region));
+  // If boss repeats are disabled, also exclude previously defeated bosses
+  if(!G.allowBossRepeats){
+    pool=pool.filter(b=>!G.defeatedBosses.includes(bossKey(b)));
+  }
+  return pool;
 }
 
 function rollDice(){ const a=Math.ceil(Math.random()*6),b=Math.ceil(Math.random()*6); G.dice=[a,b]; return a+b; }
 
 function doRoll1(){
-  if(G.phase!=='roll1'||G.anim)return; G.anim=true; renderAll();
+  if(G.phase!=='roll1'||G.anim)return; G.anim=true; G.freePass=false; renderAll();
   const oldPos=G.pos;
   animateDice(()=>{
     const total=rollDice();
@@ -22,15 +30,13 @@ function doRoll1(){
       walkToken(oldPos,targetPos,()=>{
         G.pos=targetPos;
         if(targetPos===0){
-          // Landed on START → JOKER (same as the old "roll 12" rule)
+          // Landed on START → JOKER (only START has joker)
           G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice';
         }else{
           G.region=getRegion(S[G.pos].regionId);
-          const avail=getAvailableBosses(G.region.id);
-          if(avail.length===0){
-            // All bosses completed for this region — treat as joker
-            G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'};
-            G.phase='joker_choice';
+          if(isRegionCompleted(G.region.id)){
+            // Region already completed → free pass, back to roll1
+            G.phase='roll1'; G.region=null; G.freePass=true;
           }else{
             G.phase='roll2';
           }
@@ -57,10 +63,15 @@ function doRoll2(){
 
 function completeTask(){
   if(G.phase!=='done'||!G.region||!G.boss)return;
-  const key=makeCompletedKey(G.region.id,G.boss);
-  if(!G.completed.includes(key)){
-    G.completed.push(key);
+  const regionId=G.region.id;
+  if(!G.completed.includes(regionId)){
+    G.completed.push(regionId);
     G.points++;
+  }
+  // Track defeated boss if repeats are disabled
+  if(!G.allowBossRepeats && G.boss){
+    const key=bossKey(G.boss);
+    if(!G.defeatedBosses.includes(key)) G.defeatedBosses.push(key);
   }
   G.phase='roll1'; G.dice=[0,0]; G.region=null; G.boss=null;
   if(G.points>=MAX_POINTS){
@@ -79,67 +90,18 @@ function giveUp(){
 
 function confirmGiveUp(){
   G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null;
-  G.points=0; G.completed=[]; G.won=false;
+  G.points=0; G.completed=[]; G.won=false; G.freePass=false; G.defeatedBosses=[];
   positionToken(0,true);
   highlightSpace(0);
   renderAll();
 }
 
-const MAX_POINTS = ALL_BOSSES.length * R.length; // 11 prep regions × total unique bosses
+const MAX_POINTS = R.length; // 11 regions total (one boss per region, incl. Kandarin)
 
-function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; renderAll(); }
+function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.defeatedBosses=[]; renderAll(); }
 
-// === TEST: 200 auto-roll+complete cycles ===
-let testBtnClicks=0;
-function runTest200(){
-  testBtnClicks++;
-  const remaining=MAX_POINTS-G.points;
-  const max=testBtnClicks>=2&&remaining<=200?Math.min(50,remaining):Math.min(200,remaining);
-  const btn=document.getElementById('btnTest');
-  if(btn)btn.textContent=max;
-  runTestBatch(max);
+function toggleBossRepeats(){
+  G.allowBossRepeats=!G.allowBossRepeats;
+  if(!G.allowBossRepeats) G.defeatedBosses=[];
+  updateToggleUI();
 }
-function runTestBatch(max){
-  let count=0;
-  function step(){
-    if(count>=max){ renderAll(); return; }
-    // Roll region (no anim)
-    const total=Math.ceil(Math.random()*6)+Math.ceil(Math.random()*6);
-    // Move forward from current position, looping like Monopoly
-    const targetPos=(G.pos+total)%12;
-    G.pos=targetPos; G.dice=[Math.ceil(Math.random()*6),Math.ceil(Math.random()*6)];
-    G.dice=[0,0]; // clear dice display, we don't care
-    if(targetPos===0){
-      // Landed on START → JOKER
-      G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice';
-    }else{
-      G.region=getRegion(S[G.pos].regionId);
-      const avail=getAvailableBosses(G.region.id);
-      if(avail.length===0){ G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice'; }
-      else{ G.phase='roll2'; }
-    }
-    // Handle joker: pick random region with bosses
-    if(G.phase==='joker_choice'){
-      const regs=R.filter(r=>getAvailableBosses(r.id).length>0);
-      if(regs.length>0){ G.region=regs[Math.floor(Math.random()*regs.length)]; G.phase='roll2'; }
-      else{ G.phase='roll1'; G.region=null; count++; setTimeout(step,5); return; }
-    }
-    // Roll boss
-    if(G.phase==='roll2'){
-      const avail=getAvailableBosses(G.region.id);
-      if(avail.length>0){ G.boss=avail[Math.floor(Math.random()*avail.length)]; G.phase='done'; }
-      else{ G.phase='roll1'; G.region=null; count++; setTimeout(step,5); return; }
-    }
-    // Complete
-    if(G.phase==='done'&&G.region&&G.boss){
-      const key=makeCompletedKey(G.region.id,G.boss);
-      if(!G.completed.includes(key)){ G.completed.push(key); G.points++; }
-    }
-    G.phase='roll1'; G.dice=[0,0]; G.region=null; G.boss=null;
-    count++;
-    if(count%20===0||count===max){ highlightSpace(G.pos); positionToken(G.pos,true); renderAll(); }
-    if(count<max){ setTimeout(step,5); }else{ highlightSpace(0); positionToken(0,true); renderAll(); }
-  }
-  step();
-}
-if(typeof animateDice==='undefined') function animateDice(cb){cb();renderAll();}
