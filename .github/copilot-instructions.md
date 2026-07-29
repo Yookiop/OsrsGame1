@@ -1,4 +1,9 @@
-# Copilot Instructions for OSRS Board Game
+# 📋 Copilot Instructions — OSRS Board Game (Reference Repo)
+
+> **🔗 Using this repo as a reference for new projects?**  
+> Copy this file (`.github/copilot-instructions.md`) to your new repo's `.github/` folder.  
+> Copilot automatically reads it when you work on that repo.  
+> The patterns, fixes, and conventions documented here are battle-tested in OsrsGame1.
 
 ## Self-review after UI/layout changes
 
@@ -108,3 +113,28 @@ In `index.html`, the `topBar` grid had `height:60px` but no `grid-template-rows`
 **Fix:** Added `grid-template-rows:64px; height:64px` to the topBar.
 
 Reference: [`OsrsGame1/index.html`](c:\administratie\git\OsrsGame1\index.html) line 91.
+
+## Variable-width content shifting adjacent grid items
+
+When an `auto`-sized grid column contains content whose width changes (e.g., dice result text going from `= 5` to `= 12`), the column expands/shrinks. In a grid with mixed `auto` and `fr` columns, this shifts the **entire adjacent `fr` column** — causing seemingly unrelated elements to move.
+
+### Why this is sneaky
+
+The shift is most visible when the variable-width content is in an `auto` column and the affected element is in the next `fr` or `auto` column. You notice "Current points moved!" but the root cause is "the dice result text got wider". Because `auto` columns size to their content, any width change propagates through the entire grid.
+
+### How to prevent it
+
+| Technique | When to use |
+|-----------|-------------|
+| **`min-width` on variable-width elements** | The content width changes (e.g., numbers in text). Set `min-width` to accommodate the widest possible value. Works best when the max width is predictable. |
+| **Fixed-width column instead of `auto`** | The column has no reason to resize. Replace `auto` with a fixed width like `90px` in `grid-template-columns`. |
+| **`max-width` with `overflow:hidden`** | The content can be truncated or clipped. Less common for game UIs but useful for text labels. |
+| **Put variable content in a `fr` column** | `fr` columns only change when the total grid width changes, not when inner content changes. |
+
+### Real example (OsrsGame1)
+
+In `index.html`, the topBar grid was `auto 1fr auto` (after refactoring). Column 1 (auto) contained the dice wrapper with `#diceResult` showing `= X`. When the dice sum changed from 5 (`= 5`) to 12 (`= 12`), the text width grew by ~20px. Column 1 expanded, pushing the points display in column 2 (1fr) to the right — even though the points text hadn't changed at all.
+
+**Fix:** Increased `#diceResult` `min-width` from `50px` to `90px` so column 1 never changes width regardless of the dice value.
+
+Reference: [`OsrsGame1/index.html`](c:\administratie\git\OsrsGame1\index.html) line 54 (`#diceResult` CSS).
