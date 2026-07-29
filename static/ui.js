@@ -238,7 +238,7 @@ function updateCenterDefault(){
   }else{
     ct.classList.remove('center-joker');
     ct.style.justifyContent='center';
-    ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;">Land on START = JOKER</div>';
+    ct.innerHTML='<button class="btn btn-roll" id="btnRoll" onclick="doRoll1()"><img src="static/images/dice%20icon.png" alt="🎲" style="width:34px;height:34px;vertical-align:middle;margin-right:3px;"> ROLL</button><div style="color:#c9a64e;font-size:5rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:1.5rem;font-weight:900;text-align:center;">Land on START = JOKER</div>';
   }
 }
 
@@ -300,18 +300,13 @@ function selectJokerBoss(idx){
 
 // ==================== BUTTONS ====================
 function updateBtns(){
-  const b1=document.getElementById('btn1'),rst=document.getElementById('btnReset');
   const cmp=document.getElementById('btnComplete'),gup=document.getElementById('btnGiveUp');
-  if(b1)b1.style.visibility=(G.phase==='roll1' && !G.anim && !G.won)?'':'hidden';
-  if(b1)b1.disabled=G.anim||G.won;
-
-  // Complete + Give Up buttons visible in 'done' phase
   const doneVisible=(G.phase==='done' && !G.anim);
-  if(cmp)cmp.style.visibility=doneVisible?'':'hidden';
-  if(gup)gup.style.visibility=doneVisible?'':'hidden';
+  if(cmp)cmp.style.display=doneVisible?'':'none';
+  if(gup)gup.style.display=doneVisible?'':'none';
 
-  // Hide old Again button permanently (replaced by Complete/GiveUp)
-  if(rst)rst.style.display='none';
+  const roll=document.getElementById('btnRoll');
+  if(roll)roll.disabled=G.anim||G.won;
 
   const dr=document.getElementById('diceResult');
   if(dr)dr.textContent=G.dice[0]?('= '+String(G.dice[0]+G.dice[1])):'';
