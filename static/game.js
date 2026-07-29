@@ -7,9 +7,10 @@ function bossKey(b){ return b.region+'|'+b.n; }
 function isRegionCompleted(regionId){ return G.completed.includes(regionId); }
 function getAvailableBosses(regionId){
   if(isRegionCompleted(regionId)) return [];
-  // Every region picks from ALL bosses (except those from already-completed regions)
-  let pool=ALL_BOSSES.filter(b=>!isRegionCompleted(b.region));
-  // If boss repeats are disabled, also exclude previously defeated bosses
+  // Include ALL bosses from ALL regions (even from "completed" regions),
+  // then exclude only the SPECIFIC bosses that have been defeated individually.
+  let pool=[...ALL_BOSSES];
+  // If boss repeats are disabled, exclude previously defeated bosses
   if(!G.allowBossRepeats){
     pool=pool.filter(b=>!G.defeatedBosses.includes(bossKey(b)));
   }
