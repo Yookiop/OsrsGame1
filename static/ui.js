@@ -216,7 +216,7 @@ function updateCenterDefault(){
     ct.classList.remove('center-joker');
     ct.style.justifyContent='center';
     const r=getRegion(S[G.pos].regionId);
-    ct.innerHTML='<div style="color:#4caf50;font-size:3rem;line-height:1;">✅</div><div style="color:#4caf50;font-size:1.5rem;font-weight:900;text-align:center;">'+r.name+' already completed!<br>Roll again!</div>';
+    ct.innerHTML='<div style="position:relative;z-index:2;color:#4caf50;font-size:3rem;line-height:1;">✅</div><div style="position:relative;z-index:2;color:#4caf50;font-size:1.5rem;font-weight:900;text-align:center;">'+r.name+' already completed!<br><span style="font-size:1.4rem;opacity:0.9;">Auto-rolling...</span></div>';
   }else if(G.phase==='joker_choice'){
     ct.classList.add('center-joker');
     ct.style.justifyContent='flex-start';
@@ -238,7 +238,7 @@ function updateCenterDefault(){
   }else{
     ct.classList.remove('center-joker');
     ct.style.justifyContent='center';
-    ct.innerHTML='<button class="btn btn-roll" id="btnRoll" onclick="doRoll1()"><img src="static/images/dice%20icon.png" alt="🎲" style="width:34px;height:34px;vertical-align:middle;margin-right:3px;"> ROLL</button><div style="color:#c9a64e;font-size:5rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:1.5rem;font-weight:900;text-align:center;">Land on START = JOKER</div>';
+    ct.innerHTML='<button class="btn btn-roll" id="btnRoll" onclick="doRoll1()"><img src="static/images/dice%20icon.png" alt="🎲" style="width:34px;height:34px;vertical-align:middle;margin-right:3px;"> ROLL</button><div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:9rem;line-height:1;background:radial-gradient(ellipse at center,#4a3860 0%,transparent 70%);margin:4px 0;align-self:stretch;">🃏</div><div style="color:#ffd700;font-size:1.5rem;font-weight:900;text-align:center;">Land on START = JOKER</div>';
   }
 }
 

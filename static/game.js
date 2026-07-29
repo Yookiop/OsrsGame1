@@ -37,6 +37,8 @@ function doRoll1(){
           if(isRegionCompleted(G.region.id)){
             // Region already completed → free pass, back to roll1
             G.phase='roll1'; G.region=null; G.freePass=true;
+            // Auto-reroll after a brief pause so the player sees the message
+            setTimeout(()=>{if(G.phase==='roll1'&&G.freePass&&!G.anim)doRoll1();},4000);
           }else{
             G.phase='roll2';
           }
@@ -68,8 +70,8 @@ function completeTask(){
     G.completed.push(regionId);
     G.points++;
   }
-  // Track defeated boss if repeats are disabled
-  if(!G.allowBossRepeats && G.boss){
+  // Always track which boss was defeated (used when repeats are disabled)
+  if(G.boss){
     const key=bossKey(G.boss);
     if(!G.defeatedBosses.includes(key)) G.defeatedBosses.push(key);
   }
@@ -96,12 +98,20 @@ function confirmGiveUp(){
   renderAll();
 }
 
+function forceStart(){
+  G.phase='joker_choice'; G.pos=0; G.dice=[0,0];
+  G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'};
+  G.boss=null; G.anim=false; G.freePass=false;
+  positionToken(0,true);
+  highlightSpace(0);
+  renderAll();
+}
+
 const MAX_POINTS = R.length; // 11 regions total (one boss per region, incl. Kandarin)
 
 function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.defeatedBosses=[]; renderAll(); }
 
 function toggleBossRepeats(){
   G.allowBossRepeats=!G.allowBossRepeats;
-  if(!G.allowBossRepeats) G.defeatedBosses=[];
   updateToggleUI();
 }
