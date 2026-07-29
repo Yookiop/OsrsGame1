@@ -1,5 +1,5 @@
 ﻿/* OSRS Board Game — roll region (preparation), then slot-machine boss pick */
-const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], won:false, freePass:false, allowBossRepeats:true, defeatedBosses:[] };
+const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], completedBosses:{}, won:false, freePass:false, allowBossRepeats:true, defeatedBosses:[] };
 
 function bossKey(b){ return b.region+'|'+b.n; }
 
@@ -19,7 +19,7 @@ function getAvailableBosses(regionId){
 function rollDice(){ const a=Math.ceil(Math.random()*6),b=Math.ceil(Math.random()*6); G.dice=[a,b]; return a+b; }
 
 function doRoll1(){
-  if(G.phase!=='roll1'||G.anim)return; G.anim=true; G.freePass=false; renderAll();
+  if(G.phase!=='roll1'||G.anim)return; G.anim=true; G.freePass=false; G.dice=[0,0]; renderAll();
   const oldPos=G.pos;
   animateDice(()=>{
     const total=rollDice();
@@ -68,6 +68,7 @@ function completeTask(){
   const regionId=G.region.id;
   if(!G.completed.includes(regionId)){
     G.completed.push(regionId);
+    G.completedBosses[regionId]=G.boss.n;
     G.points++;
   }
   // Always track which boss was defeated (used when repeats are disabled)
@@ -92,7 +93,7 @@ function giveUp(){
 
 function confirmGiveUp(){
   G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null;
-  G.points=0; G.completed=[]; G.won=false; G.freePass=false; G.defeatedBosses=[];
+  G.points=0; G.completed=[]; G.completedBosses={}; G.won=false; G.freePass=false; G.defeatedBosses=[];
   positionToken(0,true);
   highlightSpace(0);
   renderAll();
@@ -109,7 +110,7 @@ function forceStart(){
 
 const MAX_POINTS = R.length; // 11 regions total (one boss per region, incl. Kandarin)
 
-function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.defeatedBosses=[]; renderAll(); }
+function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.defeatedBosses=[]; G.completedBosses={}; renderAll(); }
 
 function toggleBossRepeats(){
   G.allowBossRepeats=!G.allowBossRepeats;

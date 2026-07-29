@@ -278,8 +278,8 @@ function showBossPicker(){
     const hasAvail=G.allowBossRepeats?true:!G.defeatedBosses.includes(bossKey(b));
     const imgTag=b.img?'<img src="static/boss_images/'+b.img+'" style="max-width:80%;max-height:55px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display=\'none\'">':'<span style="font-size:2rem;">👤</span>';
     const btnStyle=hasAvail
-      ?'font-size:0.85rem;padding:16px 3px 4px 3px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:90px;'
-      :'font-size:0.85rem;padding:16px 3px 4px 3px;background:#1a1208;color:#555;border:1px solid #2a2014;border-radius:5px;display:flex;flex-direction:column;align-items:center;min-height:90px;opacity:0.5;';
+      ?'font-size:0.85rem;padding:12px 3px 10px 3px;background:#2a2014;color:#ccc;border:1px solid #3a2e1e;border-radius:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:110px;'
+      :'font-size:0.85rem;padding:12px 3px 10px 3px;background:#1a1208;color:#555;border:1px solid #2a2014;border-radius:5px;display:flex;flex-direction:column;align-items:center;min-height:110px;opacity:0.5;';
     const onclick=hasAvail?'onclick="selectJokerBoss('+i+')"':'';
     const nameHtml='<div style="min-height:2.6em;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;width:100%;"><span style="color:#ffd700;font-weight:900;">'+b.n+'</span></div>';
     const imgHtml='<div style="flex:1;display:flex;align-items:center;justify-content:center;min-height:0;width:100%;position:relative;">'+imgTag+(hasAvail?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3rem;color:#f44336;opacity:0.85;">🚫</div>')+'</div>';
@@ -325,10 +325,11 @@ function updateBtns(){
     if(G.completed.length===0){
       tb.innerHTML='<tr><td colspan="2" style="color:#666;font-style:italic;padding:4px 6px;text-align:center;">No tasks completed yet</td></tr>';
     }else{
-      // Build rows from completed region IDs
+      // Build rows from completed region IDs — show which boss was defeated
       let rows=G.completed.map(regionId=>{
         const reg=getRegion(regionId);
-        return {prepName:reg?reg.name:'?', prepEmoji:reg?reg.emoji:'', bossName:'✅ Completed'};
+        const bossName=G.completedBosses[regionId]||'✅ Completed';
+        return {prepName:reg?reg.name:'?', prepEmoji:reg?reg.emoji:'', bossName:bossName};
       });
       // Sort
       const col=completedSort.col, asc=completedSort.asc;
