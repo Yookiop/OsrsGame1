@@ -7,13 +7,14 @@ function buildBoard(){
     const sp=S[i], lo=LAYOUT[i];
     const el=document.createElement('div'); el.className='space'; el.id='sp'+i;
     el.style.gridRow=lo.r; el.style.gridColumn=lo.c;
+    el.innerHTML+= '<div class="space-char"></div>';
     if(sp.type==='start'){
       el.classList.add('start');
-      el.innerHTML+= '<img class="start-pole" src="static/images/start pole animated.png" alt="START">';
+      el.innerHTML+= '<img class="start-pole" src="static/images/start pole animated new.png" alt="START">';
+      el.innerHTML+= '<div class="sn"><span class="roll-text"></span></div>';
     }else{
       const r=getRegion(sp.regionId);
-      el.innerHTML+= '<div class="space-num">'+sp.label+'</div>';
-      el.innerHTML+= '<div class="bar" style="background:'+r.color+'"></div><div class="sn">'+r.emoji+'<br>'+r.name+'</div>';
+      el.innerHTML+= '<div class="bar" style="background:'+r.color+'"></div><div class="sn">'+r.emoji+'<br>'+r.name+'<br><span class="roll-text"></span></div>';
     }
     b.appendChild(el);
   }
@@ -22,23 +23,10 @@ function buildBoard(){
   ct.style.cssText='grid-row:2/4;grid-column:2/4;background:#1e180c;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;overflow:hidden;position:relative';
   ct.innerHTML='<div style="color:#c9a64e;font-size:7rem;line-height:1;">🃏</div><div style="color:#ffd700;font-size:2rem;font-weight:900;text-align:center;margin-top:-30px;">Land on START = JOKER</div>';
   b.appendChild(ct);
-  // Token
-  tok=document.createElement('div'); tok.className='token'; tok.id='token';
-  tok.innerHTML='<img src="static/images/default%20character%20-%20cropped.png" alt="character" style="width:50px;height:50px;image-rendering:pixelated;display:block">';
-  document.getElementById('boardWrap').appendChild(tok);
-  positionToken(0);
   // Build slot machine overlay
   buildSlotOverlay();
 }
 
-function positionToken(i,instant){
-  const sp=document.getElementById('sp'+i); const bw=document.getElementById('boardWrap');
-  if(!sp||!bw||!tok)return;
-  const br=bw.getBoundingClientRect(), sr=sp.getBoundingClientRect();
-  if(instant){tok.style.transition='none';}
-  tok.style.left=(sr.left-br.left+sr.width/2)+'px'; tok.style.top=(sr.top-br.top+sr.height-27)+'px';
-  if(instant){tok.offsetHeight;tok.style.transition='';}
-}
 function walkToken(fromIdx,toIdx,done){
   if(fromIdx===toIdx){done();return;}
   // Build path: clockwise from fromIdx to toIdx (wrap if needed)
@@ -48,10 +36,20 @@ function walkToken(fromIdx,toIdx,done){
     i=(i+1)%12;
     path.push(i);
   }
+  // Hide character face on starting tile (it will walk step by step)
+  const startEl=document.getElementById('sp'+fromIdx);
+  if(startEl){const sc=startEl.querySelector('.space-char');if(sc){sc.className='space-char';sc.innerHTML='';}}
   let step=0;
   function next(){
     if(step>=path.length){done();return;}
-    positionToken(path[step]);
+    // Show character face on current walk step tile
+    const el=document.getElementById('sp'+path[step]);
+    if(el){const sc=el.querySelector('.space-char');if(sc){sc.className='space-char visible';sc.innerHTML='<img src="static/images/default%20character%20-%20cropped.png" alt="character">';}}
+    // Hide character on previous walk step
+    if(step>0){
+      const p=document.getElementById('sp'+path[step-1]);
+      if(p){const sc=p.querySelector('.space-char');if(sc){sc.className='space-char';sc.innerHTML='';}}
+    }
     step++;
     setTimeout(next,180);
   }
@@ -363,23 +361,59 @@ function updateCompletedTiles(){
       // Region completed — show checkmark, NOT joker
       el.classList.add('completed');
       const bar=el.querySelector('.bar'); if(bar)bar.style.background='#4caf50';
-      const sn=el.querySelector('.sn'); if(sn)sn.innerHTML='✅<br>'+r.name;
-      const num=el.querySelector('.space-num'); if(num)num.style.color='#4caf50';
+      const sn=el.querySelector('.sn'); if(sn)sn.innerHTML='✅<br>'+r.name+'<br><span class="roll-text"></span>';
     }else{
       el.classList.remove('completed');
       const bar=el.querySelector('.bar'); if(bar)bar.style.background=r.color;
-      const sn=el.querySelector('.sn'); if(sn)sn.innerHTML=r.emoji+'<br>'+r.name;
-      const num=el.querySelector('.space-num'); if(num)num.style.color='#ffd700';
+      const sn=el.querySelector('.sn'); if(sn)sn.innerHTML=r.emoji+'<br>'+r.name+'<br><span class="roll-text"></span>';
+    }
+  }
+}
+
+function updateRollIndicators(){
+  // Only show during roll1 and joker_choice — hide during roll2 and done
+  if(G.pos===undefined||G.phase==='roll2'||G.phase==='done'){
+    // Clear all roll-text when hiding
+    for(let i=0;i<12;i++){const rt=document.getElementById('sp'+i);if(rt){const t=rt.querySelector('.roll-text');if(t)t.textContent='';}}
+    return;
+  }
+  for(let i=0;i<12;i++){
+    const el=document.getElementById('sp'+i); if(!el)continue;
+    const rt=el.querySelector('.roll-text'); if(!rt)continue;
+    // Calculate required roll from current position
+    let req=(i-G.pos+12)%12;
+    if(req===0)req=12; // staying on same spot = need to roll 12
+    if(req>=2&&req<=12){
+      rt.textContent='(roll '+req+')';
+    }else{
+      rt.textContent='';
+    }
+  }
+}
+
+function updateCharFaces(){
+  if(G.pos===undefined)return;
+  for(let i=0;i<12;i++){
+    const el=document.getElementById('sp'+i); if(!el)continue;
+    const ch=el.querySelector('.space-char'); if(!ch)continue;
+    if(i===G.pos){
+      ch.className='space-char visible';
+      ch.innerHTML='<img src="static/images/default%20character%20-%20cropped.png" alt="character">';
+    }else{
+      ch.className='space-char';
+      ch.innerHTML='';
     }
   }
 }
 
 function renderAll(){
-  if(G.pos!==undefined){if(!G.anim)positionToken(G.pos);highlightSpace(G.pos);}
+  if(G.pos!==undefined){highlightSpace(G.pos);}
   if(G.boss){showBossInCenter(G.boss);}
   else{updateCenterDefault();}
   updateBtns();
   updateCompletedTiles();
+  updateRollIndicators();
+  updateCharFaces();
 }
 
 // ==================== CONFIRM GIVE UP POPUP ====================
@@ -438,7 +472,6 @@ function showVictoryPopup(){
     <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);"></div>\
     <div style="position:relative;z-index:1;text-align:center;">\
       <div style="font-size:4rem;color:#4caf50;font-weight:900;text-shadow:0 0 30px rgba(76,175,80,0.8);animation:victoryPulse 1s ease-in-out infinite alternate;">CONGRATULATIONS<br>YOU\'VE WON!</div>\
-      <div style="font-size:1.5rem;color:#81c784;margin:16px 0;">All bosses defeated!</div>\
       <button onclick="dismissVictory()" style="font-size:1.3rem;padding:12px 28px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;margin-top:10px;">🔄 Play Again</button>\
     </div>';
   document.body.appendChild(ov);

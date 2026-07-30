@@ -95,7 +95,6 @@ function giveUp(){
 function confirmGiveUp(){
   G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null;
   G.points=0; G.completed=[]; G.completedBosses={}; G.won=false; G.freePass=false; G.defeatedBosses=[];
-  positionToken(0,true);
   highlightSpace(0);
   renderAll();
 }
@@ -104,7 +103,6 @@ function forceStart(){
   G.phase='joker_choice'; G.pos=0; G.dice=[0,0];
   G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'};
   G.boss=null; G.anim=false; G.freePass=false;
-  positionToken(0,true);
   highlightSpace(0);
   renderAll();
 }
