@@ -83,7 +83,8 @@ function animateDice(cb){
       d1.style.boxShadow=''; d2.style.boxShadow='';
       cb();
       drawDice(d1,G.dice[0]); drawDice(d2,G.dice[1]);
-      setTimeout(()=>{d1.classList.remove('landed');d2.classList.remove('landed');renderAll();},400);
+      renderAll();
+      setTimeout(()=>{d1.classList.remove('landed');d2.classList.remove('landed');},400);
     }
   }
   tick();
@@ -212,12 +213,12 @@ function showBossInCenter(boss){
 
 function updateCenterDefault(){
   const ct=document.getElementById('centerArea'); if(!ct)return;
-  if(G.freePass && G.phase==='roll1' && !G.region && G.pos!==0 && isRegionCompleted(S[G.pos].regionId)){
+  if(G.pos!==0 && isRegionCompleted(S[G.pos].regionId) && (G.freePass || (G.anim && G.phase==='roll1' && !G.region && G.freePassStreak>0))){
     // Landed on completed region → free pass
     ct.classList.remove('center-joker');
     ct.style.justifyContent='center';
     const r=getRegion(S[G.pos].regionId);
-    ct.innerHTML='<div style="position:relative;z-index:2;color:#4caf50;font-size:3rem;line-height:1;">✅</div><div style="position:relative;z-index:2;color:#4caf50;font-size:1.5rem;font-weight:900;text-align:center;">'+r.name+' already completed!<br><span style="font-size:1.4rem;opacity:0.9;">Auto-rolling...</span></div>';
+    ct.innerHTML='<div style="position:relative;z-index:2;color:#4caf50;font-size:3rem;line-height:1;">✅</div><div style="position:relative;z-index:2;color:#4caf50;font-size:1.5rem;font-weight:900;text-align:center;">'+r.name+' already completed!<br><span style="font-size:1.4rem;opacity:0.9;">Auto-rolling... ('+G.freePassStreak+'/10)</span></div>';
   }else if(G.phase==='joker_choice'){
     ct.classList.add('center-joker');
     ct.style.justifyContent='flex-start';

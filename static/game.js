@@ -1,5 +1,5 @@
 ﻿/* OSRS Board Game — roll region (preparation), then slot-machine boss pick */
-const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], completedBosses:{}, won:false, freePass:false, allowBossRepeats:false, defeatedBosses:[], bossOrder:[] };
+const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], completedBosses:{}, won:false, freePass:false, allowBossRepeats:false, defeatedBosses:[], bossOrder:[], freePassStreak:0 };
 
 // Fisher-Yates shuffle (in-place)
 function shuffleArray(arr){
@@ -45,15 +45,25 @@ function doRoll1(){
         G.pos=targetPos;
         if(targetPos===0){
           // Landed on START → JOKER (only START has joker)
+          G.freePassStreak=0;
           G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice';
         }else{
           G.region=getRegion(S[G.pos].regionId);
           if(isRegionCompleted(G.region.id)){
-            // Region already completed → free pass, back to roll1
-            G.phase='roll1'; G.region=null; G.freePass=true;
-            // Auto-reroll after a brief pause so the player sees the message
-            setTimeout(()=>{if(G.phase==='roll1'&&G.freePass&&!G.anim)doRoll1();},4000);
+            G.freePassStreak++;
+            if(G.freePassStreak>=10){
+              // 10 consecutive completed landings → sent to START as joker
+              G.pos=0;
+              G.freePassStreak=0;
+              G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'}; G.phase='joker_choice';
+            }else{
+              // Region already completed → free pass, back to roll1
+              G.phase='roll1'; G.region=null; G.freePass=true;
+              // Auto-reroll after a brief pause so the player sees the message
+              setTimeout(()=>{if(G.phase==='roll1'&&G.freePass&&!G.anim)doRoll1();},4000);
+            }
           }else{
+            G.freePassStreak=0;
             G.phase='roll2';
           }
         }
@@ -90,6 +100,7 @@ function completeTask(){
     const key=bossKey(G.boss);
     if(!G.defeatedBosses.includes(key)) G.defeatedBosses.push(key);
   }
+  G.freePassStreak=0;
   G.phase='roll1'; G.dice=[0,0]; G.region=null; G.boss=null;
   if(G.points>=MAX_POINTS){
     G.won=true;
@@ -107,7 +118,7 @@ function giveUp(){
 
 function confirmGiveUp(){
   G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null;
-  G.points=0; G.completed=[]; G.completedBosses={}; G.won=false; G.freePass=false; G.defeatedBosses=[];
+  G.points=0; G.completed=[]; G.completedBosses={}; G.won=false; G.freePass=false; G.defeatedBosses=[]; G.freePassStreak=0;
   initBossOrder();
   highlightSpace(0);
   renderAll();
@@ -116,14 +127,14 @@ function confirmGiveUp(){
 function forceStart(){
   G.phase='joker_choice'; G.pos=0; G.dice=[0,0];
   G.region={id:'joker',name:'JOKER',color:'#ffd700',emoji:'🃏'};
-  G.boss=null; G.anim=false; G.freePass=false;
+  G.boss=null; G.anim=false; G.freePass=false; G.freePassStreak=0;
   highlightSpace(0);
   renderAll();
 }
 
 const MAX_POINTS = R.length; // 11 regions total (one boss per region, incl. Kandarin)
 
-function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.defeatedBosses=[]; G.completedBosses={}; initBossOrder(); renderAll(); }
+function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.freePassStreak=0; G.defeatedBosses=[]; G.completedBosses={}; initBossOrder(); renderAll(); }
 
 function toggleBossRepeats(){
   G.allowBossRepeats=!G.allowBossRepeats;
