@@ -1,5 +1,18 @@
 ﻿/* OSRS Board Game — roll region (preparation), then slot-machine boss pick */
-const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], completedBosses:{}, won:false, freePass:false, allowBossRepeats:false, defeatedBosses:[] };
+const G = { phase:'roll1', dice:[0,0], pos:0, region:null, boss:null, anim:false, points:0, completed:[], completedBosses:{}, won:false, freePass:false, allowBossRepeats:false, defeatedBosses:[], bossOrder:[] };
+
+// Fisher-Yates shuffle (in-place)
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function initBossOrder(){
+  G.bossOrder=shuffleArray([...ALL_BOSSES]);
+}
 
 function bossKey(b){ return b.region+'|'+b.n; }
 
@@ -95,6 +108,7 @@ function giveUp(){
 function confirmGiveUp(){
   G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null;
   G.points=0; G.completed=[]; G.completedBosses={}; G.won=false; G.freePass=false; G.defeatedBosses=[];
+  initBossOrder();
   highlightSpace(0);
   renderAll();
 }
@@ -109,7 +123,7 @@ function forceStart(){
 
 const MAX_POINTS = R.length; // 11 regions total (one boss per region, incl. Kandarin)
 
-function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.defeatedBosses=[]; G.completedBosses={}; renderAll(); }
+function resetGame(){ G.phase='roll1'; G.dice=[0,0]; G.pos=0; G.region=null; G.boss=null; G.freePass=false; G.defeatedBosses=[]; G.completedBosses={}; initBossOrder(); renderAll(); }
 
 function toggleBossRepeats(){
   G.allowBossRepeats=!G.allowBossRepeats;

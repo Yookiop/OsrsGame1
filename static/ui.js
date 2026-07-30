@@ -128,8 +128,11 @@ function openSlotMachine(targetBoss, done){
   track.style.transform='';
   track.style.transition='';
   const avail=getAvailableBosses(G.region.id);
-  const bossesWithImg=avail.filter(b=>b.img);
+  let bossesWithImg=avail.filter(b=>b.img);
   if(bossesWithImg.length===0){ov.style.display='none';slotRunning=false;done();return;}
+  // Reorder according to globally shuffled bossOrder (random per game)
+  const availKeys=new Set(bossesWithImg.map(b=>bossKey(b)));
+  bossesWithImg=G.bossOrder.filter(b=>b.img && availKeys.has(bossKey(b)));
   const totalUnique=bossesWithImg.length;
 
   // === Only 1 boss left: static centered display with glow landing ===
@@ -448,7 +451,6 @@ function showGameOverPopup(){
     <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);"></div>\
     <div style="position:relative;z-index:1;text-align:center;">\
       <div style="font-size:5rem;color:#ff0000;font-weight:900;text-shadow:0 0 30px rgba(255,0,0,0.8);animation:gameOverPulse 1s ease-in-out infinite alternate;">GAME OVER</div>\
-      <div style="font-size:1.5rem;color:#ff6b6b;margin:16px 0;">All progress lost! Points reset to 0.</div>\
       <button onclick="dismissGameOver()" style="font-size:1.3rem;padding:12px 28px;background:#c9a64e;color:#1a1208;border:none;border-radius:8px;cursor:pointer;font-weight:800;margin-top:10px;">🔄 Try Again</button>\
     </div>';
   document.body.appendChild(ov);
@@ -546,4 +548,4 @@ function updateToggleUI(){
   tog.className='toggle-switch '+(G.allowBossRepeats?'on':'off');
 }
 
-document.addEventListener('DOMContentLoaded',()=>{buildBoard();updateToggleUI();renderAll();initColumnResize();});
+document.addEventListener('DOMContentLoaded',()=>{initBossOrder();buildBoard();updateToggleUI();renderAll();initColumnResize();});
