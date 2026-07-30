@@ -240,7 +240,7 @@ function updateCenterDefault(){
   }else{
     ct.classList.remove('center-joker');
     ct.style.justifyContent='center';
-    ct.innerHTML='<button class="btn btn-roll" id="btnRoll" onclick="doRoll1()"><img src="static/images/dice%20icon.png" alt="🎲" style="width:34px;height:34px;vertical-align:middle;margin-right:3px;"> ROLL</button><div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:9rem;line-height:1;background:radial-gradient(ellipse at center,#4a3860 0%,transparent 70%);margin:4px 0;align-self:stretch;">🃏</div><div style="color:#ffd700;font-size:1.5rem;font-weight:900;text-align:center;margin-top:-30px;">Land on START = JOKER</div>';
+    ct.innerHTML='<button class="btn btn-roll" id="btnRoll" onclick="doRoll1()"><img src="static/images/dice%20icon.png" alt="🎲" style="width:34px;height:34px;vertical-align:middle;margin-right:3px;"> ROLL</button><div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:9rem;line-height:1;background:radial-gradient(ellipse at center,#4a3860 0%,transparent 70%);margin:4px 0;align-self:stretch;">🃏</div><div style="color:#ffd700;font-size:1.5rem;font-weight:900;text-align:center;margin-top:-70px;">Land on START = JOKER</div>';
   }
 }
 
